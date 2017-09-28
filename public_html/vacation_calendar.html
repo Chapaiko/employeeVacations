@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Vacation Calendar</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/6.0.7/css/aui.min.css" media="all">
+        <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/6.0.7/css/aui-experimental.min.css" media="all">
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui.min.js"></script>
+        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-experimental.min.js"></script>
+        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-datepicker.min.js"></script>
+        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-soy.min.js"></script>
+
+    </head>
+    <body>
+        <h2>SuccessCraft Vacations</h2>
+        <table id="vacations_table" class="aui">
+            <thead>
+                <tr>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+
+                </tr>
+            </tbody>
+        </table>
+        <script >
+            class Vacation {
+                constructor(name, employee, description, vacationStart, vacationEnd, resolution) {
+                    this.name = name;
+                    this.employee = employee;
+                    this.description = description;
+                    this.vacationStart = vacationStart;
+                    this.vacationEnd = vacationEnd;
+                    this.resolution = resolution;
+                }
+            }
+
+            class EmployeeWithVacations {
+                constructor(name) {
+                    this.name = name;
+                }
+            }
+
+            function getJSONData() {
+                $.getJSON("data/vacation.json", function (json) {
+                    inputData = json;
+                    console.log(inputData);
+                    manageVacations();
+                });
+            }
+
+            function manageVacations() {
+                for (var i in inputData.calendar) {
+                    vacationsList.push(new Vacation(
+                            inputData.calendar[i].Name, 
+                    inputData.calendar[i].Employee, 
+                    inputData.calendar[i].Description, 
+                    new Date(inputData.calendar[i].VacationStart), 
+                    new Date(inputData.calendar[i].VacationEnd, 
+                    inputData.calendar[i].Resolution)));
+                    console.log(vacationsList[i]);
+                }
+            }
+
+            var inputData = new Object();
+            var vacationsList = [];
+            getJSONData();
+
+        </script>
+    </body>
+</html>
