@@ -5,65 +5,47 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/6.0.7/css/aui.min.css" media="all">
-        <link rel="stylesheet" href="//aui-cdn.atlassian.com/aui-adg/6.0.7/css/aui-experimental.min.css" media="all">
+        <link rel="stylesheet" href="aui/css/aui.min.css" media="all">
+        <link rel="stylesheet" href="aui/css/aui-experimental.min.css" media="all">
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui.min.js"></script>
-        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-experimental.min.js"></script>
-        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-datepicker.min.js"></script>
-        <script src="//aui-cdn.atlassian.com/aui-adg/6.0.7/js/aui-soy.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+        <script src="aui/js/aui.min.js"></script>
+        <script src="aui/js/aui-experimental.min.js"></script>
+        <script src="aui/js/aui-soy.min.js"></script>
 
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
     </head>
     <body>
-        <div>
-            <label for="Account" style="margin-left: 10px;" >Account</label>
-                <select name="Account" style="margin-left: 5px;">
-                    <option>aa</option>
-                    <option>ab</option>
-                    <option>ac</option>
-                    <option>ad</option>
-                    <option>ae</option>
-                </select>
-            <label for="Department" style="margin-left: 10px;" >Department</label>
-            <select name="Department" style="margin-left: 5px;" >
-                <option>da</option>
-                <option>db</option>
-                <option>dc</option>
-                <option>dd</option>
-                <option>de</option>
-            </select>
-                <label for="Name" style="margin-left: 10px;" >Name</label>
-                <input type="text" name="Name" value="" size="25" style="margin-left: 5px;" />
-                <input type="button" value="Filter" name="filter" style="margin-left: 10px;" />
+        <div class="aui-page-header-actions">
+            <div class="aui-buttons">
+                <div class="tempo-pickers" >
+                    <select id ="accountSelect" name="Account" class="aui-button aui-button-subtle aui-dropdown2-trigger" style="margin-left: 10px;">
+                        <option>Account</option>
+                    </select>
+
+                    <select id ="departmentSelect" name="Department" class="aui-button aui-button-subtle aui-dropdown2-trigger" style="margin-left: 10px;" >
+                        <option>Department</option>
+                    </select>
+
+                    <input type="text" name="Name" value="" size="25" class="aui-" placeholder="Name" style="margin-left: 10px;" />
+                    <input type="button" value="Filter" name="filter" class="aui-button" style="margin-left: 10px;" />
+                </div>
             </div>
         </div>
-        <div id="vacationContainer" class="tempo-timesheet-table" style="height:500px ;" >
+        <div class="aui-buttons" style="width: 100%">  
+            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(31)" >Show 1 month</button>
+            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(81)" >Show 3 months</button>
+            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(162)" >Show 6 months</button>
+
+            <button name="filter" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(28 * 86400000)" > > </button>            
+            <button name="filter" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(-28 * 86400000)" > < </button>
+        </div>
+        <div id="vacationContainer" style="height:500px ;" >
 
         </div>
-              <div id="vacationContainerA" class="content-container tt-content-container" >
-                    <div class="tempo-table tempo-timesheet iss-nav header-target">
-                        <div class="header-container shadowed-header">
-                            <table id="vacationTable" class="tempo-timesheet-table">
-                                <thead>
-                                    <tr class="rowHeader" >
-        
-                                    </tr>
-                                    <tr class="rowHeader" >
-        
-                                    </tr>
-                                </thead>
-                                <tbody>
-        
-                                </tbody>
-                                <tfoot>
-        
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>        
-                </div>
+
         <script >
             class UsageOptions {
                 constructor(resetOn, availableDays, totalDays) {
@@ -77,8 +59,8 @@
                     this._name = name;
                     this._employee = employee;
                     this._description = description;
-                    this._vacationStart = vacationStart;
-                    this._vacationEnd = vacationEnd;
+                    this._vacationStart = new Date(vacationStart);
+                    this._vacationEnd = new Date(vacationEnd);
                     this._resolution = resolution;
                 }
             }
@@ -100,8 +82,14 @@
             var inputData = new Object();
             var vacationsList = [];
             var scopedVacationList = [];
-
-
+            var account;
+            var department;
+            var name;
+            var minDate;
+            var maxDate;
+            var timePeriod = 28 * 86400000;
+            var startListDate = new Date();
+            var endListDate = new Date();
             function getJSONData() {
                 $.getJSON("data/vacation.json", function (json) {
                     inputData = json;
@@ -112,83 +100,131 @@
                 });
             }
 
+            function shiftDate(dateShiftValue) {
+                startListDate.setTime(Date.parse(startListDate) + dateShiftValue);
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                endListDate = new Date();
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+                console.log('endListDate: ' + endListDate);
+                scopedVacationList = [];
+                manageScopeData();
+                google.charts.load('current', {'packages': ['timeline']});
+                google.charts.setOnLoadCallback(drawChart);
+            }
+
+            function changeTimePeriod(newTimePeriod) {
+                timePeriod = newTimePeriod * 86400000;
+                console.log('timePeriod: ' + timePeriod);
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+                scopedVacationList = [];
+                manageScopeData();
+                google.charts.load('current', {'packages': ['timeline']});
+                google.charts.setOnLoadCallback(drawChart);
+            }
+
+            function setCurrentDates() {
+                startListDate = new Date();
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                endListDate = new Date()
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+                console.log('endListDate: ' + endListDate);
+            }
+
             function manageVacations() {
-                //let employeeSet = new Set();
                 for (var i in inputData.calendar) {
-                    vacationsList.push(new Vacation(
+                    let tempVac = new Vacation(
                             inputData.calendar[i].Name,
                             inputData.calendar[i].Employee,
                             inputData.calendar[i].Description,
                             new Date(inputData.calendar[i].VacationStart),
                             new Date(inputData.calendar[i].VacationEnd),
-                            inputData.calendar[i].Resolution));
-                    //console.log(vacationsList[i]);
-                    //employeeSet.add(inputData.calendar[i].Employee);
+                            inputData.calendar[i].Resolution);
+                    tempVac._vacationStart = new Date(tempVac._vacationStart.getFullYear(), tempVac._vacationStart.getMonth(), tempVac._vacationStart.getDate());
+                    tempVac._vacationEnd = new Date(tempVac._vacationEnd.getFullYear(), tempVac._vacationEnd.getMonth(), tempVac._vacationEnd.getDate(), 23);
+                    vacationsList.push(tempVac);
                 }
-                vacationsList.sort();
-                for (var vac in vacationsList) {
-                    if (vacationsList[vac]._vacationStart >= currentUsageOptions._resetOn && vacationsList[vac]._vacationEnd <= currentUsageOptions._resetOn) {
+                vacationsList.sort(compare);
+                manageScopeData();
+            }
 
+
+            function compare(a, b) {
+                if (a._employee < b._employee)
+                    return -1;
+                if (a._employee > b._employee)
+                    return 1;
+                return 0;
+            }
+
+            function manageScopeData() {
+                var tempVacation = new Vacation();
+                for (var emp in vacationsList) {
+                    if ((vacationsList[emp]._vacationEnd >= startListDate && vacationsList[emp]._vacationStart <= endListDate)) {
+                        tempVacation = new Vacation(
+                                vacationsList[emp]._name,
+                                vacationsList[emp]._employee,
+                                vacationsList[emp]._description,
+                                vacationsList[emp]._vacationStart,
+                                vacationsList[emp]._vacationEnd,
+                                vacationsList[emp]._resolution);
+                        if (tempVacation._vacationStart < startListDate) {
+                            tempVacation._vacationStart = startListDate;
+                        }
+                        if (tempVacation._vacationEnd > endListDate) {
+                            tempVacation._vacationEnd = endListDate;
+                        }
+                        scopedVacationList.push(tempVacation);
                     }
                 }
-//                console.log(employeeSet);
-//                employeeArray = Array.from(employeeSet).sort();
-//                console.log(employeeArray);
-//                for (var emp in employeeArray) {
-//                    let tempEmployeeWithVacations = new EmployeeWithVacations(employeeArray[emp]);
-//                    for (var vac in vacationsList) {
-//                        //console.log(tempEmployeeWithVacations._name);
-//                        if (tempEmployeeWithVacations._name === vacationsList[vac]._employee) {
-//                            tempEmployeeWithVacations.addVacation(vacationsList[vac]);
-//                        }
-//                    }
-//                    employeesWithVacationsArray.push(tempEmployeeWithVacations);
-//                }
             }
 
             function drawChart() {
-                var container = document.getElementById('vacationContainer');
-                var chart = new google.visualization.Timeline(container);
                 var colorMap = new Map();
                 colorMap.set('In Review', 'yellow');
                 colorMap.set('Approved', 'green');
+                var container = document.getElementById('vacationContainer');
+                var chart = new google.visualization.Timeline(container);
                 var dataTable = new google.visualization.DataTable();
                 dataTable.addColumn({type: 'string', id: 'Employee'});
                 dataTable.addColumn({type: 'string', id: 'Resolution'});
+                dataTable.addColumn({type: 'string', role: 'style'});
                 dataTable.addColumn({type: 'string', role: 'tooltip'});
                 dataTable.addColumn({type: 'date', id: 'Start'});
                 dataTable.addColumn({type: 'date', id: 'End'});
-                dataTable.addColumn({type: 'string', role: 'style'});
-                for (var emp in vacationsList) {
-                    dataTable.addRow(
-                            [vacationsList[emp]._employee,
-                                vacationsList[emp]._resolution,
-                                vacationsList[emp]._name + ' ' + vacationsList[emp]._description,
-                                vacationsList[emp]._vacationStart,
-                                vacationsList[emp]._vacationEnd,
-                                'color: ' + colorMap.get(vacationsList[emp]._resolution)
-                            ]);
+                for (var emp in scopedVacationList) {
+                    dataTable.addRow([
+                        scopedVacationList[emp]._employee,
+                        scopedVacationList[emp]._resolution,
+                        colorMap.get(scopedVacationList[emp]._resolution),
+                        scopedVacationList[emp]._name + ' ' + scopedVacationList[emp]._description,
+                        scopedVacationList[emp]._vacationStart,
+                        scopedVacationList[emp]._vacationEnd
+                    ]);
                 }
+
                 var tempMaxDate = new Date(currentUsageOptions._resetOn);
                 tempMaxDate.setDate(tempMaxDate.getDate() + currentUsageOptions._totalDays);
                 var options = {
                     timeline: {
-
+                        //                       showBarLabels: false,
                         showRowLabels: true,
                         groupByRowLabel: true},
-                    colors: ['yellow', 'green'],
                     hAxis: {
-                        minValue: new Date(2017, 3, 1),
-                        maxValue: new Date(2017, 5, 1)
+                        minValue: startListDate,
+                        maxValue: endListDate
                     }
-                };
-                var view = new google.visualization.DataView(dataTable);
-                chart.draw(dataTable, options);
 
+                };
+                $(window).resize(drawChart);
+                var view = new google.visualization.DataView(dataTable);
+                //var view = new google.visualization.DataView(dataTable);
+                chart.draw(view, options);
             }
 
             window.onload = function () {
                 getJSONData();
+                setCurrentDates();
                 google.charts.load('current', {'packages': ['timeline']});
                 google.charts.setOnLoadCallback(drawChart);
             }
