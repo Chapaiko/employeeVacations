@@ -5,6 +5,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        <link rel="stylesheet" href="css/vacationstimesheet.css" media="all">
+
         <link rel="stylesheet" href="aui/css/aui.min.css" media="all">
         <link rel="stylesheet" href="aui/css/aui-experimental.min.css" media="all">
 
@@ -17,32 +19,32 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     </head>
-    <body>
+    <body id="vacationsCalendar" class="aui-page" style="background: #fafafa;">
         <div class="aui-page-header-actions">
-            <div class="aui-buttons">
-                <div class="tempo-pickers" >
-                    <select id ="accountSelect" name="Account" class="aui-button aui-button-subtle aui-dropdown2-trigger" style="margin-left: 10px;">
+            <div class="aui-form" style="margin-top:10px; margin-bottom: 10px;">
+                <div >
+                    <select id ="accountSelect" name="Account" class="aui-button ">
                         <option>Account</option>
                     </select>
 
-                    <select id ="departmentSelect" name="Department" class="aui-button aui-button-subtle aui-dropdown2-trigger" style="margin-left: 10px;" >
+                    <select id ="departmentSelect" name="Department" class="aui-button" style="margin-left: 10px;" >
                         <option>Department</option>
                     </select>
 
-                    <input type="text" name="Name" value="" size="25" class="aui-" placeholder="Name" style="margin-left: 10px;" />
+                    <input type="text" name="Name" value="" size="25" class="" placeholder="Name" style="margin-left: 10px;" />
                     <input type="button" value="Filter" name="filter" class="aui-button" style="margin-left: 10px;" />
                 </div>
             </div>
         </div>
-        <div class="aui-buttons" style="width: 100%">  
-            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(31)" >Show 1 month</button>
-            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(81)" >Show 3 months</button>
-            <button name="filter" class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(162)" >Show 6 months</button>
+        <div class="aui-buttons" style="width: 100%;margin-top:10px; margin-bottom: 10px;">  
+            <button  class="aui-button" style="margin-left: 20px;" onclick="changeTimePeriod(31)" >Show 1 month</button>
+            <button  class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(81)" >Show 3 months</button>
+            <button  class="aui-button" style="margin-left: 10px;" onclick="changeTimePeriod(162)" >Show 6 months</button>
 
-            <button name="filter" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(28 * 86400000)" > > </button>            
-            <button name="filter" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(-28 * 86400000)" > < </button>
+            <button id="forwardButton" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(28 * 86400000)"  > > </button>            
+            <button id="backwardButton" class="aui-button" style="margin-right: 10px; float: right" onclick="shiftDate(-28 * 86400000)" > < </button>
         </div>
-        <div id="vacationContainer" style="height:500px ;" >
+        <div id="vacationContainer" style="margin-left: 20px;">
 
         </div>
 
@@ -87,25 +89,55 @@
             var name;
             var minDate;
             var maxDate;
+            var dateFormatforAxis = 'dd.MM';
             var timePeriod = 28 * 86400000;
             var startListDate = new Date();
             var endListDate = new Date();
+            var xhr = new XMLHttpRequest();
+
             function getJSONData() {
-                $.getJSON("data/vacation.json", function (json) {
-                    inputData = json;
+//                $.getJSON("data/vacation.json", function (json) {
+//                    inputData = json;
+//                    console.log(inputData);
+//                    currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
+//                    console.log(currentUsageOptions);
+//                    manageVacations();
+//                });
+                xhr.open('GET', 'data/vacation.json', false);
+                xhr.send();
+                if (xhr.status !== 200) {
+                    alert(xhr.status + ': ' + xhr.statusText);
+                } else {
+                    inputData = JSON.parse(xhr.responseText);
                     console.log(inputData);
                     currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
-                    console.log(currentUsageOptions);
+              //      console.log(currentUsageOptions);
                     manageVacations();
-                });
+                }
+
             }
 
             function shiftDate(dateShiftValue) {
+                //console.log(startListDate);
                 startListDate.setTime(Date.parse(startListDate) + dateShiftValue);
+                //console.log('minDate: ' + minDate + ' ; maxDate: ' + maxDate);
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+               // console.log((Date.parse(startListDate) - dateShiftValue) < Date.parse(minDate));
+                if (Date.parse(startListDate) < Date.parse(minDate)) {
+                    document.getElementById("backwardButton").disabled = true;
+                } else {
+                    document.getElementById("backwardButton").disabled = false;
+                }
                 endListDate = new Date();
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
-                console.log('endListDate: ' + endListDate);
+                //console.log((Date.parse(endListDate) + timePeriod) > Date.parse(maxDate));
+                if ((Date.parse(endListDate) ) > Date.parse(maxDate)) {
+                    document.getElementById("forwardButton").disabled = true;
+                } else {
+                    document.getElementById("forwardButton").disabled = false;
+                }
+  //              console.log('startListDate ' + startListDate);
+    //            console.log('endListDate: ' + endListDate);
                 scopedVacationList = [];
                 manageScopeData();
                 google.charts.load('current', {'packages': ['timeline']});
@@ -114,6 +146,11 @@
 
             function changeTimePeriod(newTimePeriod) {
                 timePeriod = newTimePeriod * 86400000;
+                if (newTimePeriod === 31) {
+                    dateFormatforAxis = 'dd.MM';
+                } else {
+                    dateFormatforAxis = 'dd.MM.yyyy';
+                }
                 console.log('timePeriod: ' + timePeriod);
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
@@ -128,10 +165,14 @@
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 endListDate = new Date()
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
-                console.log('endListDate: ' + endListDate);
+      //          console.log('endListDate: ' + endListDate);
             }
 
             function manageVacations() {
+                setCurrentDates();
+                maxDate = new Date(inputData.calendar[0].VacationEnd);
+                minDate = new Date(inputData.calendar[0].VacationStart);
+   //             console.log('maxDate: ' + maxDate + ' ; minDate: ' + minDate)
                 for (var i in inputData.calendar) {
                     let tempVac = new Vacation(
                             inputData.calendar[i].Name,
@@ -140,6 +181,13 @@
                             new Date(inputData.calendar[i].VacationStart),
                             new Date(inputData.calendar[i].VacationEnd),
                             inputData.calendar[i].Resolution);
+                    if (tempVac._vacationStart < minDate) {
+                        minDate = new Date(tempVac._vacationStart.getFullYear(), tempVac._vacationStart.getMonth(), tempVac._vacationStart.getDate());
+                    }
+                    if (tempVac._vacationEnd > maxDate) {
+                        maxDate = new Date(tempVac._vacationEnd.getFullYear(), tempVac._vacationEnd.getMonth(), tempVac._vacationEnd.getDate(), 23);
+                    }
+              //      console.log('maxDate: ' + maxDate + ' ; minDate: ' + minDate)
                     tempVac._vacationStart = new Date(tempVac._vacationStart.getFullYear(), tempVac._vacationStart.getMonth(), tempVac._vacationStart.getDate());
                     tempVac._vacationEnd = new Date(tempVac._vacationEnd.getFullYear(), tempVac._vacationEnd.getMonth(), tempVac._vacationEnd.getDate(), 23);
                     vacationsList.push(tempVac);
@@ -177,12 +225,14 @@
                         scopedVacationList.push(tempVacation);
                     }
                 }
+                console.log('scopedVacationList: '+scopedVacationList.length);
             }
 
             function drawChart() {
                 var colorMap = new Map();
                 colorMap.set('In Review', 'yellow');
                 colorMap.set('Approved', 'green');
+                colorMap.set('Test', 'Blue');
                 var container = document.getElementById('vacationContainer');
                 var chart = new google.visualization.Timeline(container);
                 var dataTable = new google.visualization.DataTable();
@@ -202,23 +252,39 @@
                         scopedVacationList[emp]._vacationEnd
                     ]);
                 }
-
+                var barFontSize = 7;
                 var tempMaxDate = new Date(currentUsageOptions._resetOn);
                 tempMaxDate.setDate(tempMaxDate.getDate() + currentUsageOptions._totalDays);
                 var options = {
+                    tooltip: {
+                        isHtml: true
+                    },
                     timeline: {
-                        //                       showBarLabels: false,
+                        showBarLabels: false,
                         showRowLabels: true,
-                        groupByRowLabel: true},
+                        groupByRowLabel: true,
+                        rowLabelStyle: {
+                            fontName: 'sans-serif',
+                            color: '#4286f3',
+                        },
+                        barLabelStyle: {
+                            fontSize: barFontSize,
+                        },
+                    },
                     hAxis: {
                         minValue: startListDate,
-                        maxValue: endListDate
-                    }
-
+                        maxValue: endListDate,
+                        format: dateFormatforAxis,
+                        textStyle: {
+                            fontSize: 6
+                        }
+                    },
+                    width: $(window).width() * 0.98,
+                    height: $(window).height() * 0.75,
+                    allowHtml: true,
+                    // height: tableHeight,
                 };
-                $(window).resize(drawChart);
                 var view = new google.visualization.DataView(dataTable);
-                //var view = new google.visualization.DataView(dataTable);
                 chart.draw(view, options);
             }
 
@@ -228,6 +294,10 @@
                 google.charts.load('current', {'packages': ['timeline']});
                 google.charts.setOnLoadCallback(drawChart);
             }
+
+            $(window).resize(function () {
+                drawChart();
+            });
         </script>
     </body>
 </html>

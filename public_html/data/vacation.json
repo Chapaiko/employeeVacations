@@ -343,8 +343,8 @@
             "Description": "Test dayoff Vacation"
         },
         {  
-            "VacationStart": "2017-06-21",
-            "VacationEnd": "2017-07-01",
+            "VacationStart": "2017-07-21",
+            "VacationEnd": "2017-08-01",
             "Resolution": "In Review",
             "Name": "RQ-0815",
             "Employee": "Igor Pekarski",
@@ -353,7 +353,7 @@
         {  
             "VacationStart": "2017-06-22",
             "VacationEnd": "2017-06-23",
-            "Resolution": "In Review",
+            "Resolution": "Test",
             "Name": "RQ-0816",
             "Employee": "Igor Pekarski",
             "Description": "Test dayoff Vacation"
