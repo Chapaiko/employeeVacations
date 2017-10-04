@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vacation Calendar</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="css/vacationstimesheet.css" media="all">
+
+        <link rel="stylesheet" href="aui/css/aui.min.css" media="all">
+        <link rel="stylesheet" href="aui/css/aui-experimental.min.css" media="all">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+        <script src="aui/js/aui.min.js"></script>
+        <script src="aui/js/aui-experimental.min.js"></script>
+        <script src="aui/js/aui-soy.min.js"></script>
+    </head>
+
+    <body id="vacationsCalendar" class="aui-layout" style="background: #fafafa;">
+        <div class="aui-page-header-actions">
+            <div class="aui-form" style="margin-top:10px; margin-bottom: 10px;">
+                <div >
+                    <select id ="accountSelect" name="Account" class="aui-button ">
+                        <option>Account</option>
+                    </select>
+
+                    <select id ="departmentSelect" name="Department" class="aui-button" style="margin-left: 10px;" >
+                        <option>Department</option>
+                    </select>
+
+                    <input type="text" name="Name" value="" size="25" class="textbox" placeholder="Name" style="margin-left: 10px;" />
+                    <input type="button" value="Filter" name="filter" class="aui-button" style="margin-left: 10px;" />
+                </div>
+            </div>
+        </div>
+        <div  style="width: 100%;margin-top:10px; margin-bottom: 10px;">  
+            <button  class="aui-button" style="margin: 10px; margin-left: 20px; " onclick="changeTimePeriod(31)" >Show 1 month</button>
+            <button  class="aui-button" style="margin: 10px;" onclick="changeTimePeriod(81)" >Show 3 months</button>
+            <button  class="aui-button" style="margin: 10px;" onclick="changeTimePeriod(162)" >Show 6 months</button>
+
+            <button id="forwardButton" class="aui-button" style="margin: 10px; float: right" onclick="shiftDate(28 * 86400000)"  > > </button>            
+            <button id="backwardButton" class="aui-button" style="margin: 10px; float: right" onclick="shiftDate(-28 * 86400000)" > < </button>
+        </div>
+        <div id="vacationContainer" style="margin-left: 20px;">
+            <table id="vacationTable">
+
+            </table>
+        </div>
+        <script >
+            class UsageOptions {
+                constructor(resetOn, availableDays, totalDays) {
+                    this._resetOn = resetOn;
+                    this._availableDays = availableDays;
+                    this._totalDays = totalDays;
+                }
+            }
+            class Vacation {
+                constructor(name, employee, description, vacationStart, vacationEnd, resolution) {
+                    this._name = name;
+                    this._employee = employee;
+                    this._description = description;
+                    this._vacationStart = new Date(vacationStart);
+                    this._vacationEnd = new Date(vacationEnd);
+                    this._resolution = resolution;
+                }
+            }
+
+            class EmployeeWithVacations {
+                constructor(name) {
+                    this._name = name;
+                    this._vacationDays = [];
+                }
+                addVacation(addedVacation) {
+                    while (addedVacation._vacationStart <= addedVacation._vacationEnd) {
+                        var tempVacDay = new vacationDay((addedVacation._name + ', ' + addedVacation._description), addedVacation._vacationStart, colorMap.get(addedVacation._resolution));
+                        addedVacation._vacationStart = new Date(addedVacation._vacationStart.getTime() + 86400000);
+                        this._vacationDays.push(tempVacDay);
+                        console.log(tempVacDay);
+                    }
+                    console.log(' this._vacationDays: ' + this._vacationDays.length);
+                }
+            }
+
+            class vacationDay {
+                constructor(description, currentDate, color) {
+                    this._description = description;
+                    this._currentDate = currentDate;
+                    this._color = color;
+                }
+            }
+
+            var colorMap = new Map();
+            colorMap.set('In Review', 'yellow');
+            colorMap.set('Approved', 'green');
+
+            var currentUsageOptions = new UsageOptions();
+            var employeeArray = new Array();
+            var employeesWithVacationsArray = new Array();
+            var inputData = new Object();
+            var vacationsList = [];
+            var scopedVacationList = [];
+            var scopedEmployeesWithVacations = new Set();
+            var account;
+            var department;
+            var name;
+            var minDate;
+            var maxDate;
+            var dateFormatforAxis = 'dd.MM';
+            var timePeriod = 28 * 86400000;
+            var startListDate = new Date();
+            var endListDate = new Date();
+            var xhr = new XMLHttpRequest();
+
+
+            function getJSONData() {
+                inputData = jsondata;
+                console.log(inputData);
+                currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
+                console.log(currentUsageOptions);
+                manageVacations();
+//                $.getJSON(jsondata, function (json) {
+//                    inputData = json;
+//                    console.log(inputData);
+//                    currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
+//                    console.log(currentUsageOptions);
+//                    manageVacations();
+//                });
+//                xhr.open('GET', 'data/vacation.json', false);
+//                xhr.send();
+//                if (xhr.status !== 200) {
+//                    alert(xhr.status + ': ' + xhr.statusText);
+//                } else {
+//                    inputData = JSON.parse(xhr.responseText);
+//                    console.log(inputData);
+//                    currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
+//                    //      console.log(currentUsageOptions);
+//                    manageVacations();
+//                }
+
+            }
+
+            function shiftDate(dateShiftValue) {
+                startListDate.setTime(Date.parse(startListDate) + dateShiftValue);
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                if ((Date.parse(startListDate)) < Date.parse(minDate)) {
+                    document.getElementById("backwardButton").disabled = true;
+                } else {
+                    document.getElementById("backwardButton").disabled = false;
+                }
+                endListDate = new Date();
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+                if ((Date.parse(endListDate)) > Date.parse(maxDate)) {
+                    document.getElementById("forwardButton").disabled = true;
+                } else {
+                    document.getElementById("forwardButton").disabled = false;
+                }
+                reRenderVacationsList();
+            }
+
+            function changeTimePeriod(newTimePeriod) {
+                timePeriod = newTimePeriod * 86400000;
+                if (newTimePeriod === 31) {
+                    dateFormatforAxis = 'dd.MM';
+                } else {
+                    dateFormatforAxis = 'dd.MM.yyyy';
+                }
+                console.log('timePeriod: ' + timePeriod);
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+                shiftDate(0);
+            }
+
+            function setCurrentDates() {
+                startListDate = new Date();
+                startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
+                endListDate = new Date()
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+            }
+
+            function manageVacations() {
+                setCurrentDates();
+                maxDate = new Date(inputData.calendar[0].VacationEnd);
+                minDate = new Date(inputData.calendar[0].VacationStart);
+                for (var i in inputData.calendar) {
+                    let tempVac = new Vacation(
+                            inputData.calendar[i].Name,
+                            inputData.calendar[i].Employee,
+                            inputData.calendar[i].Description,
+                            new Date(inputData.calendar[i].VacationStart),
+                            new Date(inputData.calendar[i].VacationEnd),
+                            inputData.calendar[i].Resolution);
+                    if (tempVac._vacationStart < minDate) {
+                        minDate = new Date(tempVac._vacationStart.getFullYear(), tempVac._vacationStart.getMonth(), tempVac._vacationStart.getDate());
+                    }
+                    if (tempVac._vacationEnd > maxDate) {
+                        maxDate = new Date(tempVac._vacationEnd.getFullYear(), tempVac._vacationEnd.getMonth(), tempVac._vacationEnd.getDate(), 23);
+                    }
+                    tempVac._vacationStart = new Date(tempVac._vacationStart.getFullYear(), tempVac._vacationStart.getMonth(), tempVac._vacationStart.getDate());
+                    tempVac._vacationEnd = new Date(tempVac._vacationEnd.getFullYear(), tempVac._vacationEnd.getMonth(), tempVac._vacationEnd.getDate(), 23);
+                    vacationsList.push(tempVac);
+                }
+                vacationsList.sort(compare);
+                manageScopeData();
+            }
+
+
+            function compare(a, b) {
+                if (a._employee < b._employee)
+                    return -1;
+                if (a._employee > b._employee)
+                    return 1;
+                return 0;
+            }
+
+            function manageScopeData() {
+                var tempVacation = new Vacation();
+                var employeesNameSet = new Set();
+                for (var emp in vacationsList) {
+                    if ((vacationsList[emp]._vacationEnd >= startListDate && vacationsList[emp]._vacationStart <= endListDate)) {
+                        tempVacation = new Vacation(
+                                vacationsList[emp]._name,
+                                vacationsList[emp]._employee,
+                                vacationsList[emp]._description,
+                                vacationsList[emp]._vacationStart,
+                                vacationsList[emp]._vacationEnd,
+                                vacationsList[emp]._resolution);
+                        if (tempVacation._vacationStart < startListDate) {
+                            tempVacation._vacationStart = startListDate;
+                        }
+                        if (tempVacation._vacationEnd > endListDate) {
+                            tempVacation._vacationEnd = endListDate;
+                        }
+                        employeesNameSet.add(vacationsList[emp]._employee);
+                        scopedVacationList.push(tempVacation);
+                    }
+                }
+                console.log('employeesNameSet: ' + employeesNameSet.size);
+                employeesNameSet.forEach((value, anotherValue, set) => {
+                    scopedEmployeesWithVacations.add(new EmployeeWithVacations(value));
+                    console.log('value: ' + value);
+                });
+                console.log('scopedEmployeesWithVacations: ' + scopedEmployeesWithVacations.size);
+                console.log('scopedVacationList: ' + scopedVacationList.length);
+                scopedEmployeesWithVacations.forEach((value, anothervalue, set) => {
+                    console.log(value._name);
+                    for (var vac in scopedVacationList) {
+                        console.log('value._name: ' + value._name + ' , ' + 'scopedVacationList[vac].Employee: ' + scopedVacationList[vac]._employee);
+                        if (value._name === scopedVacationList[vac]._employee) {
+                            console.log(value._name === scopedVacationList[vac]._employee);
+                            console.log('---value._name: ' + value._name + ' , ' + 'scopedVacationList[vac].Employee: ' + scopedVacationList[vac]._employee);
+                            value.addVacation(scopedVacationList[vac]);
+                        }
+                    }
+                });
+                
+                drawChart();
+            }
+
+            function drawChart() {
+                let oldTable = document.getElementById('vacationTable');
+                let newTable = oldTable.cloneNode(false);
+                let vthead;
+                vthead = document.createElement('thead');
+                let vtrh;
+                vtrh = document.createElement('tr');
+                vtrh.id = 'dateDayNumber';
+                let tempDate = new Date();
+                tempDate.setTime(startListDate.getTime());
+                let vtdh;
+                while (tempDate < endListDate) {
+                    vtdh = document.createElement('td');
+                    var span = document.createElement('span');
+                    span.className = 'content';
+                    span.appendChild(document.createTextNode(tempDate.getDate()));
+                    vtdh.appendChild(span);
+                    vtrh.appendChild(vtdh);
+                    console.log(tempDate.getDate());
+                    tempDate.setTime(tempDate.getTime() + 86400000);
+                }
+                vthead.appendChild(vtrh);
+                newTable.appendChild(vthead);
+                var weekday = new Array(7);
+                weekday[0] = "M";
+                weekday[1] = "T";
+                weekday[2] = "W";
+                weekday[3] = "T";
+                weekday[4] = "F";
+                weekday[5] = "S";
+                weekday[6] = "S";
+                let vtheadl;
+                vtheadl = document.createElement('thead');
+                let vtrhl;
+                vtrhl = document.createElement('tr');
+                vtrhl.id = 'dateDayNumber';
+                tempDate.setTime(startListDate.getTime());
+                let vtdhl;
+                while (tempDate < endListDate) {
+                    vtdhl = document.createElement('td');
+                    var span = document.createElement('span');
+                    span.className = 'content';
+                    span.appendChild(document.createTextNode(weekday[ tempDate.getDay()]));
+                    vtdhl.appendChild(span);
+                    vtrhl.appendChild(vtdhl);
+                    console.log(weekday[ tempDate.getDay()]);
+                    tempDate.setTime(tempDate.getTime() + 86400000);
+                }
+                vtheadl.appendChild(vtrhl);
+                newTable.appendChild(vtheadl);
+                
+                oldTable.parentNode.replaceChild(newTable, oldTable);
+            }
+
+            function reRenderVacationsList() {
+                scopedVacationList = [];
+                manageScopeData();
+            }
+
+            window.onload = function () {
+                getJSONData();
+                setCurrentDates();
+            }
+
+            $(window).resize(function () {
+                drawChart();
+            });
+
+            var jsondata =
+                    {
+                        "status": "Success",
+                        "usage": {
+                            "resetOn": "2018-07-12",
+                            "availableDays": 8,
+                            "totalDays": 15
+                        },
+                        "calendar": [
+                            {
+                                "VacationStart": "2016-12-20",
+                                "VacationEnd": "2016-12-30",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0808",
+                                "Employee": "Artem Suhover",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2016-12-30",
+                                "VacationEnd": "2016-12-31",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0796",
+                                "Employee": "Vera Semak",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2016-12-31",
+                                "VacationEnd": "2016-12-31",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0758",
+                                "Employee": "Sergey Levdanski",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2016-12-31",
+                                "VacationEnd": "2017-01-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0770",
+                                "Employee": "Alexandra Vasiliuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-01",
+                                "VacationEnd": "2017-01-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0820",
+                                "Employee": "Alexey Kalutov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-01",
+                                "VacationEnd": "2017-01-10",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0822",
+                                "Employee": "Pavel Baranov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-10",
+                                "VacationEnd": "2017-01-20",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0792",
+                                "Employee": "Maksim Zinovik",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-20",
+                                "VacationEnd": "2017-01-30",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0773",
+                                "Employee": "Olga Kordeluk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-30",
+                                "VacationEnd": "2017-01-30",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0818",
+                                "Employee": "Alexey Kalutov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-30",
+                                "VacationEnd": "2017-01-31",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0789",
+                                "Employee": "Roman Trofimuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-31",
+                                "VacationEnd": "2017-01-31",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0732",
+                                "Employee": "Irina Ivanukovich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-01-31",
+                                "VacationEnd": "2017-02-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0782",
+                                "Employee": "Alexandr Luferov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-02-22",
+                                "VacationEnd": "2017-03-06",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0827",
+                                "Employee": "Yulia Orlova",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-02-25",
+                                "VacationEnd": "2017-02-26",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0814",
+                                "Employee": "Andrey Vaschuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-03-06",
+                                "VacationEnd": "2017-03-12",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0803",
+                                "Employee": "Vasily Sergiychuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-03-10",
+                                "VacationEnd": "2017-03-10",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0729",
+                                "Employee": "Denis Pereverzev",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-03-21",
+                                "VacationEnd": "2017-03-21",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0771",
+                                "Employee": "Alexandra Vasiliuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-03-28",
+                                "VacationEnd": "2017-03-29",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0759",
+                                "Employee": "Sergey Levdanski",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-04",
+                                "VacationEnd": "2017-04-15",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0794",
+                                "Employee": "Vera Semak",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-14",
+                                "VacationEnd": "2017-04-14",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0766",
+                                "Employee": "Dmitry Kuzavka",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-17",
+                                "VacationEnd": "2017-04-17",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0748",
+                                "Employee": "Tatyana Samoylova",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-20",
+                                "VacationEnd": "2017-04-20",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0730",
+                                "Employee": "Denis Pereverzev",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-23",
+                                "VacationEnd": "2017-05-07",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0743",
+                                "Employee": "Kirill Samoylov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-27",
+                                "VacationEnd": "2017-05-08",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0797",
+                                "Employee": "Konstantin Suprunyuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-04-30",
+                                "VacationEnd": "2017-05-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0741",
+                                "Employee": "Oleg Krinochkin",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-01",
+                                "VacationEnd": "2017-05-01",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0783",
+                                "Employee": "Alexandr Luferov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-02",
+                                "VacationEnd": "2017-05-02",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0756",
+                                "Employee": "Sergey Pavlyuchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-07",
+                                "VacationEnd": "2017-05-16",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0764",
+                                "Employee": "Dmitry Kuzavka",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-08",
+                                "VacationEnd": "2017-05-08",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0823",
+                                "Employee": "Pavel Baranov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-09",
+                                "VacationEnd": "2017-05-10",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0817",
+                                "Employee": "Igor Pekarski",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-09",
+                                "VacationEnd": "2017-05-09",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0739",
+                                "Employee": "Pavel Lobach",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-16",
+                                "VacationEnd": "2017-05-24",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0761",
+                                "Employee": "Oleg Malitsky",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-17",
+                                "VacationEnd": "2017-05-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0774",
+                                "Employee": "Olga Kordeluk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-25",
+                                "VacationEnd": "2017-05-25",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0819",
+                                "Employee": "Alexey Kalutov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-05-30",
+                                "VacationEnd": "2017-06-11",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0734",
+                                "Employee": "Egor Markuzov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-02",
+                                "VacationEnd": "2017-06-02",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0810",
+                                "Employee": "Mihail Mamaev",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-03",
+                                "VacationEnd": "2017-06-03",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0727",
+                                "Employee": "Stanislav Yaroshchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-04",
+                                "VacationEnd": "2017-06-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0738",
+                                "Employee": "Pavel Lobach",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-09",
+                                "VacationEnd": "2017-06-09",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0780",
+                                "Employee": "Alexandr Klachko",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-15",
+                                "VacationEnd": "2017-06-25",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0767",
+                                "Employee": "Sergey Pahmurny",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-18",
+                                "VacationEnd": "2017-06-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0801",
+                                "Employee": "Pavel Kortilisets",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-19",
+                                "VacationEnd": "2017-06-20",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0807",
+                                "Employee": "Artem Suhover",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-21",
+                                "VacationEnd": "2017-08-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0815",
+                                "Employee": "Igor Pekarski",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-22",
+                                "VacationEnd": "2017-06-23",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0816",
+                                "Employee": "Igor Pekarski",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-26",
+                                "VacationEnd": "2017-06-27",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0744",
+                                "Employee": "Kirill Samoylov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-27",
+                                "VacationEnd": "2017-06-27",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0753",
+                                "Employee": "Eugene Pahuschi",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-06-28",
+                                "VacationEnd": "2017-06-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0769",
+                                "Employee": "Sergey Pahmurny",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-01",
+                                "VacationEnd": "2017-07-02",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0787",
+                                "Employee": "Vitaly Kovalchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-04",
+                                "VacationEnd": "2017-07-05",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0802",
+                                "Employee": "Pavel Kortilisets",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-10",
+                                "VacationEnd": "2017-07-11",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0775",
+                                "Employee": "Olga Kordeluk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-14",
+                                "VacationEnd": "2017-07-15",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0829",
+                                "Employee": "Yulia Orlova",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-14",
+                                "VacationEnd": "2017-07-14",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0745",
+                                "Employee": "Kirill Samoylov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-15",
+                                "VacationEnd": "2017-07-22",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0740",
+                                "Employee": "Oleg Krinochkin",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-18",
+                                "VacationEnd": "2017-07-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0765",
+                                "Employee": "Dmitry Kuzavka",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-07-28",
+                                "VacationEnd": "2017-07-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0754",
+                                "Employee": "Eugene Pahuschi",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-02",
+                                "VacationEnd": "2017-08-02",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0784",
+                                "Employee": "Alexandr Luferov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-02",
+                                "VacationEnd": "2017-08-14",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0752",
+                                "Employee": "Eugene Pahuschi",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-02",
+                                "VacationEnd": "2017-08-09",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0737",
+                                "Employee": "Pavel Lobach",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-04",
+                                "VacationEnd": "2017-08-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0826",
+                                "Employee": "Vadim Mulkevich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-05",
+                                "VacationEnd": "2017-08-06",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0747",
+                                "Employee": "Tatyana Samoylova",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-11",
+                                "VacationEnd": "2017-08-12",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0828",
+                                "Employee": "Yulia Orlova",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-14",
+                                "VacationEnd": "2017-08-15",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0750",
+                                "Employee": "Igor Boyarevich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-17",
+                                "VacationEnd": "2017-08-25",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0830",
+                                "Employee": "Vitaly Serebrekov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-23",
+                                "VacationEnd": "2017-08-23",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0811",
+                                "Employee": "Mihail Mamaev",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-24",
+                                "VacationEnd": "2017-09-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0812",
+                                "Employee": "Andrey Vaschuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-24",
+                                "VacationEnd": "2017-08-25",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0757",
+                                "Employee": "Sergey Pavlyuchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-08-27",
+                                "VacationEnd": "2017-09-09",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0725",
+                                "Employee": "Stanislav Yaroshchuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-03",
+                                "VacationEnd": "2017-09-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0762",
+                                "Employee": "Oleg Malitsky",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-04",
+                                "VacationEnd": "2017-09-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0781",
+                                "Employee": "Alexandr Klachko",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-04",
+                                "VacationEnd": "2017-09-17",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0731",
+                                "Employee": "Irina Ivanukovich",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-10",
+                                "VacationEnd": "2017-09-11",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0736",
+                                "Employee": "Egor Markuzov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-11",
+                                "VacationEnd": "2017-09-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0788",
+                                "Employee": "Roman Trofimuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-15",
+                                "VacationEnd": "2017-09-15",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0777",
+                                "Employee": "Vladimir Hrishchanovich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-16",
+                                "VacationEnd": "2017-09-24",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0749",
+                                "Employee": "Igor Boyarevich",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-19",
+                                "VacationEnd": "2017-10-02",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0776",
+                                "Employee": "Vladimir Hrishchanovich",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-19",
+                                "VacationEnd": "2017-09-20",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0786",
+                                "Employee": "Vitaly Kovalchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-21",
+                                "VacationEnd": "2017-09-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0728",
+                                "Employee": "Denis Pereverzev",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-22",
+                                "VacationEnd": "2017-09-23",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0733",
+                                "Employee": "Irina Ivanukovich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-23",
+                                "VacationEnd": "2017-10-06",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0824",
+                                "Employee": "Vadim Mulkevich",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-26",
+                                "VacationEnd": "2017-09-26",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0804",
+                                "Employee": "Vasily Sergiychuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-09-30",
+                                "VacationEnd": "2017-10-05",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0755",
+                                "Employee": "Sergey Pavlyuchuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-02",
+                                "VacationEnd": "2017-10-03",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0726",
+                                "Employee": "Stanislav Yaroshchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-04",
+                                "VacationEnd": "2017-10-04",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0768",
+                                "Employee": "Sergey Pahmurny",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-08",
+                                "VacationEnd": "2017-10-13",
+                                "Resolution": "Approved",
+                                "Name": "RQ-0785",
+                                "Employee": "Vitaly Kovalchuk",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-05",
+                                "VacationEnd": "2017-10-05",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0785",
+                                "Employee": "Vitaly Kovalchuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-09",
+                                "VacationEnd": "2017-10-10",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0813",
+                                "Employee": "Andrey Vaschuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-10",
+                                "VacationEnd": "2017-10-10",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0831",
+                                "Employee": "Vitaly Serebrekov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-11",
+                                "VacationEnd": "2017-10-11",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0751",
+                                "Employee": "Igor Boyarevich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-13",
+                                "VacationEnd": "2017-10-22",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0800",
+                                "Employee": "Pavel Kortilisets",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-14",
+                                "VacationEnd": "2017-10-20",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0791",
+                                "Employee": "Maksim Zinovik",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-18",
+                                "VacationEnd": "2017-10-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0790",
+                                "Employee": "Roman Trofimuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-19",
+                                "VacationEnd": "2017-10-26",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0746",
+                                "Employee": "Tatyana Samoylova",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-25",
+                                "VacationEnd": "2017-10-25",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0742",
+                                "Employee": "Oleg Krinochkin",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-27",
+                                "VacationEnd": "2017-10-27",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0793",
+                                "Employee": "Maksim Zinovik",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-10-28",
+                                "VacationEnd": "2017-10-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0799",
+                                "Employee": "Konstantin Suprunyuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-01",
+                                "VacationEnd": "2017-11-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0825",
+                                "Employee": "Vadim Mulkevich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-05",
+                                "VacationEnd": "2017-11-05",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0760",
+                                "Employee": "Sergey Levdanski",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-09",
+                                "VacationEnd": "2017-11-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0806",
+                                "Employee": "Artem Suhover",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-11",
+                                "VacationEnd": "2017-11-12",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0805",
+                                "Employee": "Vasily Sergiychuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-18",
+                                "VacationEnd": "2017-11-19",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0832",
+                                "Employee": "Vitaly Serebrekov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-19",
+                                "VacationEnd": "2017-11-27",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0821",
+                                "Employee": "Pavel Baranov",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-26",
+                                "VacationEnd": "2017-11-27",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0735",
+                                "Employee": "Egor Markuzov",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-28",
+                                "VacationEnd": "2017-11-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0795",
+                                "Employee": "Vera Semak",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-28",
+                                "VacationEnd": "2017-11-29",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0763",
+                                "Employee": "Oleg Malitsky",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-11-30",
+                                "VacationEnd": "2017-12-01",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0778",
+                                "Employee": "Vladimir Hrishchanovich",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-12-08",
+                                "VacationEnd": "2017-12-13",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0779",
+                                "Employee": "Alexandr Klachko",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-12-08",
+                                "VacationEnd": "2017-12-08",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0798",
+                                "Employee": "Konstantin Suprunyuk",
+                                "Description": "Test dayoff Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-12-11",
+                                "VacationEnd": "2017-12-18",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0809",
+                                "Employee": "Mihail Mamaev",
+                                "Description": "Test Full Vacation"
+                            },
+                            {
+                                "VacationStart": "2017-12-19",
+                                "VacationEnd": "2017-12-19",
+                                "Resolution": "In Review",
+                                "Name": "RQ-0772",
+                                "Employee": "Alexandra Vasiliuk",
+                                "Description": "Test dayoff Vacation"
+                            }
+                        ]
+                    }
+            ;
+        </script>
+    </body>
+
+</html>
