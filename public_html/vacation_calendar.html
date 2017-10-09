@@ -7,9 +7,8 @@
 
         <link rel="stylesheet" href="css/vacationstimesheet.css" media="all">
 
-
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-
+        <script src="js/tableHeadFixer.js"></script>
     </head>
 
     <body id="vacationsCalendar" class="vacation-body" style="background: #fafafa;">
@@ -42,10 +41,10 @@
             </div>
         </div>
         <div  class="vacation-content-body" >
-            <div style="margin-top: 5px;margin-bottom: 5px;" >  
-                <button  class="vacation-button-blue" onclick="changeTimePeriod(31)" >Show 1 month</button>
-                <button  class="vacation-button-blue" onclick="changeTimePeriod(81)" >Show 3 months</button>
-                <button  class="vacation-button-blue" onclick="changeTimePeriod(162)" >Show 6 months</button>
+            <div>  
+                <button  class="vacation-button-rounded" onclick="changeTimePeriod(28)" >Show 1 month</button>
+                <button  class="vacation-button-rounded" onclick="changeTimePeriod(81)" >Show 3 months</button>
+                <button  class="vacation-button-rounded" onclick="changeTimePeriod(162)" >Show 6 months</button>
             </div>
             <div id="vacationContainer" class="vacation-content-body-table">
                 <table id="vacationTable" class="vacation-table">
@@ -284,8 +283,11 @@
                 let newTable = document.createElement("table");
                 newTable.setAttribute("id", "vacationTable");
                 newTable.className = "vacation-table";
-                let vtheadmonth;
-                vtheadmonth = document.createElement('thead');
+                let vthead;
+                vthead = document.createElement('thead');
+                vthead.className = '';
+//                let vtheadmonth;
+//                vtheadmonth = document.createElement('thead');
                 let vtrheadRow;
                 vtrheadRow = document.createElement('tr');
                 vtrheadRow.id = 'dateMonthString';
@@ -303,8 +305,7 @@
                         if (colspanformonth >= 5) {
                             vtdhMonth = document.createElement('td');
                             vtdhMonth.colSpan = colspanformonth;
-                            vtdhMonth.className = 'vacation-header-tablecell';
-                            vtdhMonth.title = tempDate.toLocaleDateString();
+                            vtdhMonth.className = 'vacation-header-tablecell-month';
                             spanM = document.createElement('span');
                             if (tempDate.getMonth() !== 0) {
                                 spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth() - 1] + " - " + tempDate.getFullYear()));
@@ -328,17 +329,17 @@
                     spanM = document.createElement('span');
                     spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth()] + " - " + tempDate.getFullYear()));
                     vtdhMonth.appendChild(spanM);
-                    console.log(vtdhMonth);
+                    //console.log(vtdhMonth);
                     vtrheadRow.appendChild(vtdhMonth);
                 }
-                vtheadmonth.appendChild(vtrheadRow);
-                newTable.appendChild(vtheadmonth);
-
-                let vthead;
-                vthead = document.createElement('thead');
+                vthead.appendChild(vtrheadRow);
+                // newTable.appendChild(vthead);
+                //let vthead;
+                //vthead = document.createElement('thead');
                 let vtrh;
                 vtrh = document.createElement('tr');
                 vtrh.id = 'dateDayNumber';
+                vtrh.className = 'vacation-header';
                 tempDate = new Date();
                 tempDate.setTime(startListDate.getTime());
                 let vtdh;
@@ -359,7 +360,7 @@
                     tempDate.setTime(tempDate.getTime() + 86400000);
                 }
                 vthead.appendChild(vtrh);
-                newTable.appendChild(vthead);
+                //newTable.appendChild(vthead);
 
                 var weekday = new Array(7);
                 weekday[0] = "S";
@@ -377,8 +378,8 @@
                 weekdayFull[4] = "Thursday";
                 weekdayFull[5] = "Friday";
                 weekdayFull[6] = "Saturday";
-                let vtheadl;
-                vtheadl = document.createElement('thead');
+//                let vtheadl;
+//                vtheadl = document.createElement('thead');
                 let vtrhl;
                 vtrhl = document.createElement('tr');
                 vtrhl.id = 'dateDayLetter';
@@ -403,8 +404,8 @@
                     vtrhl.appendChild(vtdhl);
                     tempDate.setTime(tempDate.getTime() + 86400000);
                 }
-                vtheadl.appendChild(vtrhl);
-                newTable.appendChild(vtheadl);
+                vthead.appendChild(vtrhl);
+                newTable.appendChild(vthead);
                 var vtr, vtd;
                 scopedEmployeesWithVacations.forEach((value, anothervalue, set) => {
                     vtr = document.createElement('tr');
@@ -439,13 +440,25 @@
                     newTable.appendChild(vtr);
                 });
                 parentDiv.appendChild(newTable);
+//                console.log('before: '+  document.getElementById("vacationContainer").style.maxHeight);
+//                document.getElementById("vacationContainer").style.maxHeight =$(document).height()*0.75+("px");
+//                console.log('$(document).height(): '+$(document).height());
+//                console.log('after: '+  document.getElementById("vacationContainer").style.maxHeight);
+//                console.log('before: '+  document.getElementById("vacationContainer").style.maxHeight);
+                document.getElementById("vacationContainer").style.maxHeight = $(window).height() * 0.8 + ("px");
+                //               console.log('$(window).height(): '+$(window).height());
+                //               console.log('after: '+  document.getElementById("vacationContainer").style.maxHeight);
+
+                $("#vacationTable").tableHeadFixer({
+                    head: true,
+                    left: 1,
+                });
             }
 
             function reRenderVacationsList() {
                 scopedVacationList = [];
                 manageScopeData();
             }
-
 
             window.onload = function () {
                 getJSONData();

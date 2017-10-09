@@ -11,8 +11,7 @@ and open the template in the editor.
     color: #999!important;
     min-width: 20px!important;
     border-right:  1px solid #eee;
-    border-bottom: 1px solid #eee;
-    overflow: visible;
+    border-bottom: 1px solid #eee;  
     padding: 4px 0 4px 0;
     vertical-align: bottom;
     text-align: center;
@@ -25,7 +24,6 @@ and open the template in the editor.
     min-width: 20px;
     border-right:  1px solid #999;
     border-bottom: 1px solid #eee;
-    overflow: visible;
     padding: 4px 0 4px 0;
     vertical-align: bottom;
     text-align: center;
@@ -33,6 +31,7 @@ and open the template in the editor.
     font-family: Arial,sans-serif;
     font-size: 12px;
 }
+
 .vacation-header-tablecell{
     color: #999!important;
     font-weight: normal;
@@ -42,15 +41,13 @@ and open the template in the editor.
     white-space: normal!important;
     vertical-align: bottom;
     text-align: center;
-    overflow: hidden;
     display: table-cell;
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
 }
 
-.vacation-header-tablecell-weekend
-{
+.vacation-header-tablecell-weekend{
     color: #999!important;
     font-weight: normal;
     border-bottom: 0;
@@ -59,22 +56,33 @@ and open the template in the editor.
     white-space: normal!important;
     vertical-align: bottom;
     text-align: center;
-    overflow: hidden;
+    display: table-cell;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+}
+.vacation-header-tablecell-month{
+    color: #999!important;
+    font-weight: normal;
+    border-bottom: 0;
+    padding: 4px 0 0 0;
+    border-right: 1px solid #999;
+    white-space: normal!important;
+    vertical-align: bottom;
+    text-align: center;
     display: table-cell;
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
 }
 .vacation-tablecell-employee{
-    max-width: 250px!important;
-    min-width: 250px!important;
+    min-width: 150px!important;
     color: #999!important;
     border-right:  1px solid #eee;
     border-bottom: 1px solid #eee;
-    overflow: visible;
     padding: 4px 0 4px 0;
     vertical-align: bottom;
-    text-align: center;
+    text-align: left;
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
@@ -98,6 +106,7 @@ and open the template in the editor.
     border-color: grey;
     color: #333;
     font-family: Arial,sans-serif;
+    overflow: scroll;
 }
 .vacation-button{
     box-sizing: border-box;
@@ -120,11 +129,22 @@ and open the template in the editor.
     white-space: nowrap;
 }
 .vacation-button:hover{
-    box-sizing: border-box;
     background: #eee;
+    border: 1px solid #aaa;
+    color: #505050;
+}
+.vacation-button-rounded{
+    box-sizing: border-box;
+    background: #f5f5f5;
     border: 1px solid #ccc;
-    border-radius: 0;
-    color: #707070;
+    border-left-width: 1px;
+    border-left-color: #ddd;
+    background: #f5f5f5;
+    border-color: #ddd;
+    box-shadow: none;
+    color: #999;
+    cursor: default;
+    text-shadow: none;
     cursor: pointer;
     display: inline-block;
     font-family: Arial,sans-serif;
@@ -133,12 +153,27 @@ and open the template in the editor.
     font-weight: normal;
     height: 2.14285714em;
     line-height: 1.42857143;
-    margin: 0;
     padding: 4px 10px;
     text-decoration: none;
     vertical-align: baseline;
     white-space: nowrap;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border: 1px solid #ccc;
+    vertical-align: baseline;
+    height: auto;
+    margin: 5px 0 5px 0;
 }
+.vacation-button-rounded:hover{
+    box-sizing: border-box;
+    background: #eee;
+    border: 1px solid #aaa;
+    color: #707070;
+    cursor: pointer;
+}
+
 .vacation-button-blue{
     cursor: pointer;
     background: #3572b0;
@@ -163,25 +198,8 @@ and open the template in the editor.
 }
 .vacation-button-blue:hover{
     cursor: pointer;
-    background: #f6f4f6;
-    border-color: transparent;
+    background: #256290;
     color: #fff;
-    font-weight: bold;
-    -webkit-font-smoothing: antialiased;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 3.01px;
-    display: inline-block;
-    font-family: Arial,sans-serif;
-    font-size: 14px;
-    font-variant: normal;
-    height: 2.14285714em;
-    line-height: 1.42857143;
-    margin: 0;
-    padding: 4px 10px 4px 10px;
-    text-decoration: none;
-    vertical-align: baseline;
-    white-space: nowrap;
 }
 
 .vacation-output-date{
@@ -229,25 +247,9 @@ and open the template in the editor.
     list-style-type: disc;
 }
 .vacation-button-date:hover{
-    border: 1px solid #ccc;
+    border: 1px solid #aaa;
     background: #eee;
-    color: #707070;
-    box-sizing: border-box;
-    cursor: pointer;    
-    border-radius: 3.01px;
-    display: inline-block;
-    font-family: Arial,sans-serif;
-    font-size: 14px;
-    font-variant: normal;
-    font-weight: normal;
-    height: 2.14285714em;
-    line-height: 1.42857143;
-    margin: 0;
-    padding: 4px 10px;
-    text-decoration: none;
-    vertical-align: baseline;
-    white-space: nowrap;
-    list-style-type: disc;
+    color: #505050;
 }
 .vacation-textbox {
     height: 2.1428571428571em;
@@ -266,7 +268,6 @@ and open the template in the editor.
 .vacation-body{
     color: #333;
     min-width: 500px;
-    overflow-y: scroll;
     background: #f5f5f5;
     font-family: Arial,sans-serif;
     font-size: 14px;
@@ -278,7 +279,6 @@ and open the template in the editor.
 .vacation-content-body{
     background-color: #fff;
     border-bottom: 1px solid #ccc;
-    margin: 5px;
     padding: 0 0 10px 0;
     box-sizing: border-box;
     margin: 0;
@@ -287,16 +287,12 @@ and open the template in the editor.
     font-family: Arial,sans-serif;
     font-size: 14px;
     clear: both;
-    line-height: 1.42857142857143;
 }
 .vacation-content-body-table{
     background-color: #fff;
-    border-bottom: 1px solid #ccc;
     margin: 5px;
-    overflow-x: auto;
     padding: 0 0 10px 0;
     box-sizing: border-box;
-    margin: 0;
     vertical-align: top;
     color: #333;
     font-family: Arial,sans-serif;
@@ -334,6 +330,8 @@ and open the template in the editor.
     font-size: 14px;
 }
 .vacation-date-manage-group-item-center{
+    min-width: 280px;
+    max-width: 280px;
     display: inline-block;
     float: left;
     margin: 0;
@@ -359,7 +357,6 @@ and open the template in the editor.
     font-size: 14px;
     line-height: 1.42857142857143;
 }
-
 .tt-item-center{
     font-family: Arial,sans-serif;
     font-size: 14px;
