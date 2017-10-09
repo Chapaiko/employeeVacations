@@ -7,45 +7,50 @@
 
         <link rel="stylesheet" href="css/vacationstimesheet.css" media="all">
 
-        <link rel="stylesheet" href="aui/css/aui.min.css" media="all">
-        <link rel="stylesheet" href="aui/css/aui-experimental.min.css" media="all">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 
-        <script src="aui/js/aui.min.js"></script>
-        <script src="aui/js/aui-experimental.min.js"></script>
-        <script src="aui/js/aui-soy.min.js"></script>
     </head>
 
-    <body id="vacationsCalendar" class="aui-layout" style="background: #fafafa;">
-        <div class="aui-page-header-actions">
-            <div class="aui-form" style="margin-top:10px; margin-bottom: 10px;">
-                <div >
-                    <select id ="accountSelect" name="Account" class="aui-button ">
-                        <option>Account</option>
-                    </select>
-
-                    <select id ="departmentSelect" name="Department" class="aui-button" style="margin-left: 10px;" >
-                        <option>Department</option>
-                    </select>
-
-                    <input type="text" name="Name" value="" size="25" class="textbox" placeholder="Name" style="margin-left: 10px;" />
-                    <input type="button" value="Filter" name="filter" class="aui-button" style="margin-left: 10px;" />
-                </div>
+    <body id="vacationsCalendar" class="vacation-body" style="background: #fafafa;">
+        <div class="vacation-content-managing" >
+            <div style="margin-bottom: 10px;margin-top: 10px;" >
+                <select id ="accountSelect" name="Account" class="vacation-button ">
+                    <option>Account</option>
+                </select>
+                <select id ="departmentSelect" name="Department" class="vacation-button" style="margin-left: 10px;" >
+                    <option>Department</option>
+                </select>
+                <input type="text" name="Name" value="" size="25" class="vacation-textbox" placeholder="Name" style="margin-left: 10px;" />
+                <input type="button" value="Filter" name="filter" class="vacation-button" style="margin-left: 10px;" />
             </div>
         </div>
-        <div  style="width: 100%;margin-top:10px; margin-bottom: 10px;">  
-            <button  class="aui-button" style="margin: 10px; margin-left: 20px; " onclick="changeTimePeriod(31)" >Show 1 month</button>
-            <button  class="aui-button" style="margin: 10px;" onclick="changeTimePeriod(81)" >Show 3 months</button>
-            <button  class="aui-button" style="margin: 10px;" onclick="changeTimePeriod(162)" >Show 6 months</button>
-
-            <button id="forwardButton" class="aui-button" style="margin: 10px; float: right" onclick="shiftDate(28 * 86400000)"  > > </button>            
-            <button id="backwardButton" class="aui-button" style="margin: 10px; float: right" onclick="shiftDate(-28 * 86400000)" > < </button>
+        <div  class="vacation-content-managing">
+            <div class="tt-item-center" >
+                <ul class="vacation-date-manage-group">
+                    <li class="vacation-date-manage-group-item">
+                        <button id="backwardButton" title="Previous period" class="vacation-button-date"  onclick="shiftDate(-28 * 86400000)" > &#x25C0; </button>
+                    </li>
+                    <li id="tempo-timeframe-bar" class="vacation-date-manage-group-item-center">
+                        <output id="timeframeValue" class="vacation-output-date"  >
+                        </output>
+                    </li>
+                    <li class="vacation-date-manage-group-item">
+                        <button id="forwardButton" title="Next period" class="vacation-button-date"  onclick="shiftDate(28 * 86400000)"  > &#x25BA; </button>    
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div id="vacationContainer" style="margin-left: 20px;">
-            <table id="vacationTable">
-
-            </table>
+        <div  class="vacation-content-body" >
+            <div style="margin-top: 5px;margin-bottom: 5px;" >  
+                <button  class="vacation-button-blue" onclick="changeTimePeriod(31)" >Show 1 month</button>
+                <button  class="vacation-button-blue" onclick="changeTimePeriod(81)" >Show 3 months</button>
+                <button  class="vacation-button-blue" onclick="changeTimePeriod(162)" >Show 6 months</button>
+            </div>
+            <div id="vacationContainer" class="vacation-content-body-table">
+                <table id="vacationTable" class="vacation-table">
+                </table>
+            </div>
         </div>
         <script >
             class UsageOptions {
@@ -76,9 +81,7 @@
                         var tempVacDay = new vacationDay((addedVacation._name + ', ' + addedVacation._description), addedVacation._vacationStart, colorMap.get(addedVacation._resolution));
                         addedVacation._vacationStart = new Date(addedVacation._vacationStart.getTime() + 86400000);
                         this._vacationDays.push(tempVacDay);
-                        console.log(tempVacDay);
                     }
-                    console.log(' this._vacationDays: ' + this._vacationDays.length);
                 }
             }
 
@@ -90,9 +93,17 @@
                 }
             }
 
+            var monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+            ];
+
+            var weekendColor = "#f5f5f5";
             var colorMap = new Map();
-            colorMap.set('In Review', 'yellow');
-            colorMap.set('Approved', 'green');
+            colorMap.set('In Review', '#feffde');
+            colorMap.set('Approved', '#60b070');
 
             var currentUsageOptions = new UsageOptions();
             var employeeArray = new Array();
@@ -115,11 +126,9 @@
 
             function getJSONData() {
                 inputData = jsondata;
-                console.log(inputData);
                 currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
-                console.log(currentUsageOptions);
                 manageVacations();
-//                $.getJSON(jsondata, function (json) {
+//                $.getJSON('data/vacation.json', function (json) {
 //                    inputData = json;
 //                    console.log(inputData);
 //                    currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
@@ -165,7 +174,6 @@
                 } else {
                     dateFormatforAxis = 'dd.MM.yyyy';
                 }
-                console.log('timePeriod: ' + timePeriod);
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
                 shiftDate(0);
@@ -173,6 +181,7 @@
 
             function setCurrentDates() {
                 startListDate = new Date();
+                startListDate.setTime(Date.parse(startListDate) - 86400000)
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 endListDate = new Date()
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
@@ -217,7 +226,7 @@
                 var tempVacation = new Vacation();
                 var employeesNameSet = new Set();
                 for (var emp in vacationsList) {
-                    if ((vacationsList[emp]._vacationEnd >= startListDate && vacationsList[emp]._vacationStart <= endListDate)) {
+                    if ((vacationsList[emp]._vacationEnd > startListDate && vacationsList[emp]._vacationStart < endListDate)) {
                         tempVacation = new Vacation(
                                 vacationsList[emp]._name,
                                 vacationsList[emp]._employee,
@@ -235,86 +244,208 @@
                         scopedVacationList.push(tempVacation);
                     }
                 }
-                console.log('employeesNameSet: ' + employeesNameSet.size);
+                scopedEmployeesWithVacations = new Set();
                 employeesNameSet.forEach((value, anotherValue, set) => {
                     scopedEmployeesWithVacations.add(new EmployeeWithVacations(value));
-                    console.log('value: ' + value);
                 });
-                console.log('scopedEmployeesWithVacations: ' + scopedEmployeesWithVacations.size);
-                console.log('scopedVacationList: ' + scopedVacationList.length);
                 scopedEmployeesWithVacations.forEach((value, anothervalue, set) => {
-                    console.log(value._name);
                     for (var vac in scopedVacationList) {
-                        console.log('value._name: ' + value._name + ' , ' + 'scopedVacationList[vac].Employee: ' + scopedVacationList[vac]._employee);
                         if (value._name === scopedVacationList[vac]._employee) {
-                            console.log(value._name === scopedVacationList[vac]._employee);
-                            console.log('---value._name: ' + value._name + ' , ' + 'scopedVacationList[vac].Employee: ' + scopedVacationList[vac]._employee);
                             value.addVacation(scopedVacationList[vac]);
                         }
                     }
                 });
-                
+
                 drawChart();
             }
 
+            function formatDate(date) {
+                var day = date.getDate();
+                var monthIndex = date.getMonth();
+                var year = date.getFullYear();
+
+                return day + ' ' + monthNames[monthIndex] + ' ' + year;
+            }
+
+            function drawPeriod() {
+                var parentSpan = document.getElementById("tempo-timeframe-bar");
+                let oldA = document.getElementById("timeframeValue").remove();
+                let newA = document.createElement("output");
+                newA.className = "vacation-button-date";
+                newA.value = formatDate(new Date(startListDate.getTime())) + " - " + formatDate(new Date(endListDate.getTime() - 86400000));
+                newA.id = "timeframeValue";
+                parentSpan.appendChild(newA);
+            }
+
             function drawChart() {
-                let oldTable = document.getElementById('vacationTable');
-                let newTable = oldTable.cloneNode(false);
+                drawPeriod();
+                var parentDiv = document.getElementById("vacationContainer");
+                let oldTable = document.getElementById('vacationTable').remove();
+                let newTable = document.createElement("table");
+                newTable.setAttribute("id", "vacationTable");
+                newTable.className = "vacation-table";
+                let vtheadmonth;
+                vtheadmonth = document.createElement('thead');
+                let vtrheadRow;
+                vtrheadRow = document.createElement('tr');
+                vtrheadRow.id = 'dateMonthString';
+                let tempDate = new Date();
+                tempDate.setTime(startListDate.getTime());
+                let vtdhMonth;
+                let colspanformonth;
+                vtdhMonth = document.createElement('td');
+                vtdhMonth.className = 'vacation-header-tablecell';
+                vtrheadRow.appendChild(vtdhMonth);
+                colspanformonth = 0;
+                let currentMonth = tempDate.getMonth();
+                while (tempDate < endListDate) {
+                    if ((tempDate.getMonth() !== currentMonth)) {
+                        if (colspanformonth >= 5) {
+                            vtdhMonth = document.createElement('td');
+                            vtdhMonth.colSpan = colspanformonth;
+                            vtdhMonth.className = 'vacation-header-tablecell';
+                            vtdhMonth.title = tempDate.toLocaleDateString();
+                            spanM = document.createElement('span');
+                            if (tempDate.getMonth() !== 0) {
+                                spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth() - 1] + " - " + tempDate.getFullYear()));
+                            } else {
+                                spanM.appendChild(document.createTextNode(monthNames[11] + " - " + tempDate.getFullYear()));
+                            }
+                            vtdhMonth.appendChild(spanM);
+                            vtrheadRow.appendChild(vtdhMonth);
+                        }
+                        currentMonth = tempDate.getMonth();
+                        colspanformonth = 0;
+                    }
+                    colspanformonth++;
+                    tempDate.setTime(tempDate.getTime() + 86400000);
+                }
+                if (colspanformonth >= 5) {
+                    vtdhMonth = document.createElement('td');
+                    vtdhMonth.colSpan = colspanformonth;
+                    vtdhMonth.className = 'vacation-header-tablecell';
+                    vtdhMonth.title = tempDate.toLocaleDateString();
+                    spanM = document.createElement('span');
+                    spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth()] + " - " + tempDate.getFullYear()));
+                    vtdhMonth.appendChild(spanM);
+                    console.log(vtdhMonth);
+                    vtrheadRow.appendChild(vtdhMonth);
+                }
+                vtheadmonth.appendChild(vtrheadRow);
+                newTable.appendChild(vtheadmonth);
+
                 let vthead;
                 vthead = document.createElement('thead');
                 let vtrh;
                 vtrh = document.createElement('tr');
                 vtrh.id = 'dateDayNumber';
-                let tempDate = new Date();
+                tempDate = new Date();
                 tempDate.setTime(startListDate.getTime());
                 let vtdh;
+                vtdh = document.createElement('td');
+                vtdh.className = 'vacation-header-tablecell';
+                vtrh.appendChild(vtdh);
                 while (tempDate < endListDate) {
                     vtdh = document.createElement('td');
+                    vtdh.className = 'vacation-header-tablecell';
+                    if (tempDate.getDay() === 0) {
+                        vtdh.className = 'vacation-header-tablecell-weekend';
+                    }
+                    vtdh.title = tempDate.toLocaleDateString();
                     var span = document.createElement('span');
-                    span.className = 'content';
                     span.appendChild(document.createTextNode(tempDate.getDate()));
                     vtdh.appendChild(span);
                     vtrh.appendChild(vtdh);
-                    console.log(tempDate.getDate());
                     tempDate.setTime(tempDate.getTime() + 86400000);
                 }
                 vthead.appendChild(vtrh);
                 newTable.appendChild(vthead);
+
                 var weekday = new Array(7);
-                weekday[0] = "M";
-                weekday[1] = "T";
-                weekday[2] = "W";
-                weekday[3] = "T";
-                weekday[4] = "F";
-                weekday[5] = "S";
+                weekday[0] = "S";
+                weekday[1] = "M";
+                weekday[2] = "T";
+                weekday[3] = "W";
+                weekday[4] = "T";
+                weekday[5] = "F";
                 weekday[6] = "S";
+                var weekdayFull = new Array(7);
+                weekdayFull[0] = "Sunday";
+                weekdayFull[1] = "Monday";
+                weekdayFull[2] = "Tuesday";
+                weekdayFull[3] = "Wednesday";
+                weekdayFull[4] = "Thursday";
+                weekdayFull[5] = "Friday";
+                weekdayFull[6] = "Saturday";
                 let vtheadl;
                 vtheadl = document.createElement('thead');
                 let vtrhl;
                 vtrhl = document.createElement('tr');
-                vtrhl.id = 'dateDayNumber';
+                vtrhl.id = 'dateDayLetter';
                 tempDate.setTime(startListDate.getTime());
                 let vtdhl;
+                vtdhl = document.createElement('td');
+                vtdhl.className = 'vacation-tablecell';
+                let spans = document.createElement('span');
+                spans.appendChild(document.createTextNode("Employee"));
+                vtdhl.appendChild(spans);
+                vtrhl.appendChild(vtdhl);
                 while (tempDate < endListDate) {
                     vtdhl = document.createElement('td');
-                    var span = document.createElement('span');
-                    span.className = 'content';
+                    vtdhl.className = 'vacation-header-tablecell';
+                    let span = document.createElement('span');
                     span.appendChild(document.createTextNode(weekday[ tempDate.getDay()]));
+                    if (tempDate.getDay() === 0) {
+                        vtdhl.className = 'vacation-header-tablecell-weekend';
+                    }
+                    vtdhl.title = weekdayFull[ tempDate.getDay()];
                     vtdhl.appendChild(span);
                     vtrhl.appendChild(vtdhl);
-                    console.log(weekday[ tempDate.getDay()]);
                     tempDate.setTime(tempDate.getTime() + 86400000);
                 }
                 vtheadl.appendChild(vtrhl);
                 newTable.appendChild(vtheadl);
-                
-                oldTable.parentNode.replaceChild(newTable, oldTable);
+                var vtr, vtd;
+                scopedEmployeesWithVacations.forEach((value, anothervalue, set) => {
+                    vtr = document.createElement('tr');
+                    vtr.id = 'employeeVacations' + value._name;
+                    vtd = document.createElement('td');
+                    vtd.className = 'vacation-tablecell-employee';
+                    var span = document.createElement('span');
+                    span.className = 'vacation-employee';
+                    span.appendChild(document.createTextNode(value._name));
+                    vtd.appendChild(span);
+                    vtr.appendChild(vtd);
+
+                    tempDate.setTime(startListDate.getTime());
+                    while (tempDate < endListDate) {
+                        vtd = document.createElement('td');
+                        vtd.className = 'vacation-tablecell';
+                        if ((tempDate.getDay() === 6) || (tempDate.getDay() === 0)) {
+                            if (tempDate.getDay() === 0) {
+                                vtd.className = 'vacation-tablecell-weekend';
+                            }
+                            vtd.style.backgroundColor = weekendColor;
+                        }
+                        for (var vd in value._vacationDays) {
+                            if (value._vacationDays[vd]._currentDate.getTime() === tempDate.getTime()) {
+                                vtd.style.backgroundColor = value._vacationDays[vd]._color;
+                                vtd.title = value._vacationDays[vd]._description;
+                            }
+                        }
+                        vtr.appendChild(vtd);
+                        tempDate.setTime(tempDate.getTime() + 86400000);
+                    }
+                    newTable.appendChild(vtr);
+                });
+                parentDiv.appendChild(newTable);
             }
 
             function reRenderVacationsList() {
                 scopedVacationList = [];
                 manageScopeData();
             }
+
 
             window.onload = function () {
                 getJSONData();

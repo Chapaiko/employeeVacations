@@ -8,8 +8,8 @@ and open the template in the editor.
     Author     : vasily.sergiychuk
 */
 .vacation-tablecell{
-    color: #999;
-    min-width: 2opx;
+    color: #999!important;
+    min-width: 20px!important;
     border-right:  1px solid #eee;
     border-bottom: 1px solid #eee;
     overflow: visible;
@@ -20,14 +20,239 @@ and open the template in the editor.
     font-family: Arial,sans-serif;
     font-size: 12px;
 }
-.small-font {
-    font-size: 8px;
-    height: 10px;
+.vacation-tablecell-weekend{
+    color: #999;
+    min-width: 20px;
+    border-right:  1px solid #999;
+    border-bottom: 1px solid #eee;
+    overflow: visible;
+    padding: 4px 0 4px 0;
+    vertical-align: bottom;
+    text-align: center;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
 }
-.textbox {
+.vacation-header-tablecell{
+    color: #999!important;
+    font-weight: normal;
+    border-bottom: 0;
+    padding: 4px 0 0 0;
+    border-right: 1px solid #eee;
+    white-space: normal!important;
+    vertical-align: bottom;
+    text-align: center;
+    overflow: hidden;
+    display: table-cell;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+}
+
+.vacation-header-tablecell-weekend
+{
+    color: #999!important;
+    font-weight: normal;
+    border-bottom: 0;
+    padding: 4px 0 0 0;
+    border-right: 1px solid #999;
+    white-space: normal!important;
+    vertical-align: bottom;
+    text-align: center;
+    overflow: hidden;
+    display: table-cell;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+}
+.vacation-tablecell-employee{
+    max-width: 250px!important;
+    min-width: 250px!important;
+    color: #999!important;
+    border-right:  1px solid #eee;
+    border-bottom: 1px solid #eee;
+    overflow: visible;
+    padding: 4px 0 4px 0;
+    vertical-align: bottom;
+    text-align: center;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+}
+.vacation-employee{
+    color: #3b73af;
+    font-size: 12px;
+    text-decoration: none;
+    text-align: left;
+    white-space: nowrap;
+}
+.vacation-table {
+    clear: left;
+    font-size: 12px;
+    text-align: center;
+    background-color: #fff;
+    border-collapse: collapse;
+    margin: 8px 0;
+    width: 100%;
+    border-spacing: 2px;
+    border-color: grey;
+    color: #333;
+    font-family: Arial,sans-serif;
+}
+.vacation-button{
+    box-sizing: border-box;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    color: #707070;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+.vacation-button:hover{
+    box-sizing: border-box;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    color: #707070;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+.vacation-button-blue{
+    cursor: pointer;
+    background: #3572b0;
+    border-color: transparent;
+    color: #fff;
+    font-weight: bold;
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+.vacation-button-blue:hover{
+    cursor: pointer;
+    background: #f6f4f6;
+    border-color: transparent;
+    color: #fff;
+    font-weight: bold;
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.vacation-output-date{
+    border: 1px solid #ccc;
+    background: transparent;
+    border-color: transparent;
+    color: #707070;
+    box-sizing: border-box;
+    cursor: pointer;    
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+    list-style-type: disc;
+}
+.vacation-button-date{
+    border: 1px solid #ccc;
+    background: transparent;
+    border-color: transparent;
+    color: #707070;
+    box-sizing: border-box;
+    cursor: pointer;    
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+    list-style-type: disc;
+}
+.vacation-button-date:hover{
+    border: 1px solid #ccc;
+    background: #eee;
+    color: #707070;
+    box-sizing: border-box;
+    cursor: pointer;    
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+    list-style-type: disc;
+}
+.vacation-textbox {
     height: 2.1428571428571em;
     line-height: 1.4285714285714;
-    font-size: inherit;
+    font-size: 14px;
     color: #333;
     padding: 4px 5px;
     margin: 0 0 0 10px;
@@ -37,4 +262,126 @@ and open the template in the editor.
     box-shadow: inset 0 1px 3px #ccc;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
+}
+.vacation-body{
+    color: #333;
+    min-width: 500px;
+    overflow-y: scroll;
+    background: #f5f5f5;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;    
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+.vacation-content-body{
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    margin: 5px;
+    padding: 0 0 10px 0;
+    box-sizing: border-box;
+    margin: 0;
+    vertical-align: top;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    clear: both;
+    line-height: 1.42857142857143;
+}
+.vacation-content-body-table{
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    margin: 5px;
+    overflow-x: auto;
+    padding: 0 0 10px 0;
+    box-sizing: border-box;
+    margin: 0;
+    vertical-align: top;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    clear: both;
+    line-height: 1.42857142857143;
+}
+.vacation-content-managing{
+    overflow: hidden;
+    padding: 5px 0 0 0;
+    border-top: 0;
+    border-bottom: 1px solid #ccc;
+    margin: 0;
+    display: table;
+    box-sizing: border-box;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
+}
+.vacation-date-manage-group{
+    min-width: 347px;
+    margin: 0;
+    display: inline-block;
+    padding: 0;
+    white-space: nowrap;
+    list-style-type: disc;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    text-align: center;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+}
+.vacation-date-manage-group-item-center{
+    display: inline-block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    text-align: -webkit-match-parent;    
+    white-space: nowrap;
+    list-style-type: disc;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
+}
+.vacation-date-manage-group-item{
+    display: inline-block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    text-align: -webkit-match-parent;    
+    white-space: nowrap;
+    list-style-type: disc;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
+}
+
+.tt-item-center{
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
+    color: #333;
+    padding: 0;
+    box-sizing: border-box;
+    display: table-cell;
+    margin: 0;
+    vertical-align: top;
+    padding-left: 0;
+    text-align: center;
+}
+.tt-item{
+    text-align: left;
+    box-sizing: border-box;
+    display: table-cell;
+    padding: 0;
+    margin: 0;
+    vertical-align: top;
+    color: #333;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857142857143;
 }
