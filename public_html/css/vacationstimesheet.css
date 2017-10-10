@@ -8,7 +8,7 @@ and open the template in the editor.
     Author     : vasily.sergiychuk
 */
 .vacation-tablecell{
-    color: #999!important;
+    color: #333!important;
     min-width: 20px!important;
     border-right:  1px solid #eee;
     border-bottom: 1px solid #eee;  
@@ -20,7 +20,7 @@ and open the template in the editor.
     font-size: 12px;
 }
 .vacation-tablecell-weekend{
-    color: #999;
+    color: #333;
     min-width: 20px;
     border-right:  1px solid #999;
     border-bottom: 1px solid #eee;
@@ -33,7 +33,7 @@ and open the template in the editor.
 }
 
 .vacation-header-tablecell{
-    color: #999!important;
+    color: #333!important;
     font-weight: normal;
     border-bottom: 0;
     padding: 4px 0 0 0;
@@ -48,7 +48,7 @@ and open the template in the editor.
 }
 
 .vacation-header-tablecell-weekend{
-    color: #999!important;
+    color: #333!important;
     font-weight: normal;
     border-bottom: 0;
     padding: 4px 0 0 0;
@@ -62,7 +62,7 @@ and open the template in the editor.
     font-size: 12px;
 }
 .vacation-header-tablecell-month{
-    color: #999!important;
+    color: #333!important;
     font-weight: normal;
     border-bottom: 0;
     padding: 4px 0 0 0;
@@ -77,7 +77,7 @@ and open the template in the editor.
 }
 .vacation-tablecell-employee{
     min-width: 150px!important;
-    color: #999!important;
+    color: #333!important;
     border-right:  1px solid #eee;
     border-bottom: 1px solid #eee;
     padding: 4px 0 4px 0;
@@ -133,6 +133,9 @@ and open the template in the editor.
     border: 1px solid #aaa;
     color: #505050;
 }
+.vacation-button:focus{
+    outline:0;
+}
 .vacation-button-rounded{
     box-sizing: border-box;
     background: #f5f5f5;
@@ -142,7 +145,7 @@ and open the template in the editor.
     background: #f5f5f5;
     border-color: #ddd;
     box-shadow: none;
-    color: #999;
+    color: #333;
     cursor: default;
     text-shadow: none;
     cursor: pointer;
@@ -170,8 +173,16 @@ and open the template in the editor.
     box-sizing: border-box;
     background: #eee;
     border: 1px solid #aaa;
+    color: #222;
+    cursor: pointer;
+}
+.vacation-button-rounded:focus{
+    box-sizing: border-box;
+    background: #eee;
+    border: 1px solid #aaa;
     color: #707070;
     cursor: pointer;
+    outline:0;
 }
 
 .vacation-button-blue{
@@ -200,6 +211,12 @@ and open the template in the editor.
     cursor: pointer;
     background: #256290;
     color: #fff;
+}
+.vacation-button-blue:hover{
+    cursor: pointer;
+    background: #256290;
+    color: #fff;
+    outline: 0;
 }
 
 .vacation-output-date{
@@ -250,6 +267,9 @@ and open the template in the editor.
     border: 1px solid #aaa;
     background: #eee;
     color: #505050;
+}
+.vacation-button-date:focus{
+    outline: 0;
 }
 .vacation-textbox {
     height: 2.1428571428571em;

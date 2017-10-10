@@ -286,8 +286,6 @@
                 let vthead;
                 vthead = document.createElement('thead');
                 vthead.className = '';
-//                let vtheadmonth;
-//                vtheadmonth = document.createElement('thead');
                 let vtrheadRow;
                 vtrheadRow = document.createElement('tr');
                 vtrheadRow.id = 'dateMonthString';
@@ -329,13 +327,9 @@
                     spanM = document.createElement('span');
                     spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth()] + " - " + tempDate.getFullYear()));
                     vtdhMonth.appendChild(spanM);
-                    //console.log(vtdhMonth);
                     vtrheadRow.appendChild(vtdhMonth);
                 }
                 vthead.appendChild(vtrheadRow);
-                // newTable.appendChild(vthead);
-                //let vthead;
-                //vthead = document.createElement('thead');
                 let vtrh;
                 vtrh = document.createElement('tr');
                 vtrh.id = 'dateDayNumber';
@@ -360,8 +354,6 @@
                     tempDate.setTime(tempDate.getTime() + 86400000);
                 }
                 vthead.appendChild(vtrh);
-                //newTable.appendChild(vthead);
-
                 var weekday = new Array(7);
                 weekday[0] = "S";
                 weekday[1] = "M";
@@ -378,8 +370,6 @@
                 weekdayFull[4] = "Thursday";
                 weekdayFull[5] = "Friday";
                 weekdayFull[6] = "Saturday";
-//                let vtheadl;
-//                vtheadl = document.createElement('thead');
                 let vtrhl;
                 vtrhl = document.createElement('tr');
                 vtrhl.id = 'dateDayLetter';
@@ -440,15 +430,7 @@
                     newTable.appendChild(vtr);
                 });
                 parentDiv.appendChild(newTable);
-//                console.log('before: '+  document.getElementById("vacationContainer").style.maxHeight);
-//                document.getElementById("vacationContainer").style.maxHeight =$(document).height()*0.75+("px");
-//                console.log('$(document).height(): '+$(document).height());
-//                console.log('after: '+  document.getElementById("vacationContainer").style.maxHeight);
-//                console.log('before: '+  document.getElementById("vacationContainer").style.maxHeight);
-                document.getElementById("vacationContainer").style.maxHeight = $(window).height() * 0.8 + ("px");
-                //               console.log('$(window).height(): '+$(window).height());
-                //               console.log('after: '+  document.getElementById("vacationContainer").style.maxHeight);
-
+                document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
                 $("#vacationTable").tableHeadFixer({
                     head: true,
                     left: 1,
