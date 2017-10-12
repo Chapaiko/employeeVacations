@@ -21,10 +21,10 @@ and open the template in the editor.
     font-size: 12px;
 }
 .vacation-tablecell-weekend{
-    color: #333;
+    color: #999;
     min-width: 15px;
-
     min-height: 15px!important;
+    background-color: #f1f1f1;
     border-right:  1px solid #999;
     border-bottom: 1px solid #eee;
     padding: 4px 0 4px 0;
@@ -35,12 +35,32 @@ and open the template in the editor.
     font-size: 12px;
 }
 
+.vacation-small-tablecell{
+    color: #333!important;
+    padding: 2px 0 2px 0;
+    border-right:  1px solid #eee;
+    border-bottom: 1px solid #eee;  
+    vertical-align: bottom;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.vacation-small-tablecell-weekend{
+    color: #333;
+    padding: 2px 0 2px 0;
+    border-right:  1px solid #999;
+    border-bottom: 1px solid #eee;
+    border-collapse: collapse;
+    white-space:nowrap;
+}
+
 .vacation-header-tablecell{
     color: #333!important;
     font-weight: normal;
     border-bottom: 0;
     padding: 4px 0 0 0;
     border-right: 1px solid #eee;
+    border-bottom: 0;
     white-space: normal!important;
     vertical-align: bottom;
     text-align: center;
@@ -48,6 +68,40 @@ and open the template in the editor.
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
+    white-space:nowrap;    
+    overflow: hidden;
+}
+
+.vacation-header-tablecell-small{
+    min-width: 45px;
+    color: #333!important;
+    font-weight: normal;
+    border-bottom: 0;
+    padding: 2px 0 2px 0;
+    border-right: 1px solid #eee;
+    vertical-align: bottom;
+    text-align: center;
+    display: table-cell;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+    white-space:nowrap;
+    overflow: hidden;
+}
+.vacation-header-tablecell-small-irregular{
+    width: 45px;
+    color: #333!important;
+    font-weight: normal;
+    border-bottom: 0;
+    padding: 4px 0 4px 0;
+    border-right: 1px solid #eee;
+    vertical-align: bottom;
+    text-align: center;
+    display: table-cell;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 12px;
+    white-space:nowrap;
 }
 
 .vacation-header-tablecell-weekend{
@@ -77,6 +131,7 @@ and open the template in the editor.
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
+    white-space:nowrap;
 }
 .vacation-tablecell-employee{
     min-width: 120px!important;
@@ -89,6 +144,18 @@ and open the template in the editor.
     border-collapse: collapse;
     font-family: Arial,sans-serif;
     font-size: 12px;
+}
+.vacation-tablecell-employee-small{
+    width: 90px!important;
+    color: #333!important;
+    border-right:  1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 2px 0 2px 0;
+    vertical-align: bottom;
+    text-align: left;
+    border-collapse: collapse;
+    font-family: Arial,sans-serif;
+    font-size: 10px;
 }
 .vacation-employee{
     color: #3b73af;
@@ -109,7 +176,6 @@ and open the template in the editor.
     border-color: grey;
     color: #333;
     font-family: Arial,sans-serif;
-    overflow: scroll;
 }
 .vacation-button{
     box-sizing: border-box;
@@ -244,6 +310,38 @@ and open the template in the editor.
     white-space: nowrap;
     list-style-type: disc;
 }
+
+.vacation-button-select{
+    border: 1px solid #ccc;
+    background: transparent;
+    border-color: transparent;
+    color: #707070;
+    box-sizing: border-box;
+    cursor: pointer;    
+    border-radius: 3.01px;
+    display: inline-block;
+    font-family: Arial,sans-serif;
+    font-size: 14px;
+    font-variant: normal;
+    font-weight: normal;
+    height: 2.14285714em;
+    line-height: 1.42857143;
+    margin: 0;
+    padding: 4px 10px;
+    text-decoration: none;
+    vertical-align: baseline;
+    white-space: nowrap;
+    list-style-type: disc;
+}
+.vacation-button-select:hover{
+    border: 1px solid #aaa;
+    background: #eee;
+    color: #505050;
+}
+.vacation-button-select:focus{
+    outline: 0;
+}
+
 .vacation-button-date{
     border: 1px solid #ccc;
     background: transparent;
@@ -265,6 +363,7 @@ and open the template in the editor.
     vertical-align: baseline;
     white-space: nowrap;
     list-style-type: disc;
+    width: 100%;
 }
 .vacation-button-date:hover{
     border: 1px solid #aaa;

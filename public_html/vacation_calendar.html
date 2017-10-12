@@ -14,10 +14,10 @@
     <body id="vacationsCalendar" class="vacation-body" >
         <div class="vacation-content-managing" >
             <div style="margin-bottom: 10px;margin-top: 10px;" >
-                <select id ="accountSelect" name="Account" class="vacation-button ">
+                <select id ="accountSelect" name="Account" class="vacation-button-select">
                     <option>Account</option>
                 </select>
-                <select id ="departmentSelect" name="Department" class="vacation-button" style="margin-left: 10px;" >
+                <select id ="departmentSelect" name="Department" class="vacation-button-select" style="margin-left: 10px;" >
                     <option>Department</option>
                 </select>
                 <input type="text" name="Name" value="" size="25" class="vacation-textbox" placeholder="Name" style="margin-left: 10px;" />
@@ -28,14 +28,26 @@
             <div class="tt-item-center" >
                 <ul class="vacation-date-manage-group">
                     <li class="vacation-date-manage-group-item">
-                        <button id="backwardButton" title="Previous period" class="vacation-button-date"  onclick="shiftDate(-28 * 86400000)" > &#x25C0; </button>
+                        <button id="backwardDayButton" title="Previous day" class="vacation-button-date"  onclick="shiftDate(-1 * 86400000)" >&#x25C0;</button>
+                    </li>
+                    <li class="vacation-date-manage-group-item">
+                        <button id="backwardWeekButton" title="Previous day" class="vacation-button-date"  onclick="shiftDate(-7 * 86400000)" >&#x25C0;</button>
+                    </li>
+                    <li class="vacation-date-manage-group-item">
+                        <button id="backwardButton" title="Previous period" class="vacation-button-date"  onclick="shiftDate(-28 * 86400000)" >&#x25C0;&#x25C0;</button>
                     </li>
                     <li id="tempo-timeframe-bar" class="vacation-date-manage-group-item-center">
                         <output id="timeframeValue" class="vacation-output-date"  >
                         </output>
                     </li>
                     <li class="vacation-date-manage-group-item">
-                        <button id="forwardButton" title="Next period" class="vacation-button-date"  onclick="shiftDate(28 * 86400000)"  > &#x25BA; </button>    
+                        <button id="forwardButton" title="Next period" class="vacation-button-date"  onclick="shiftDate(28 * 86400000)"  >&#x25BA;&#x25BA;</button>    
+                    </li>
+                    <li class="vacation-date-manage-group-item">
+                        <button id="forwardWeekButton" title="Next day" class="vacation-button-date"  onclick="shiftDate(7 * 86400000)"  >&#x25BA;</button>    
+                    </li>
+                    <li class="vacation-date-manage-group-item">
+                        <button id="forwardDayButton" title="Next day" class="vacation-button-date"  onclick="shiftDate(1 * 86400000)"  >&#x25BA;</button>    
                     </li>
                 </ul>
             </div>
@@ -98,6 +110,12 @@
                 "August", "September", "October",
                 "November", "December"
             ];
+            var shortMonthNames = [
+                "Jan", "Feb", "Mar",
+                "Apr", "May", "June", "July",
+                "Aug", "Sept", "Oct",
+                "Nov", "Dec"
+            ];
             var weekendColor = "#f5f5f5";
             var colorMap = new Map();
             colorMap.set('In Review', '#feffde');
@@ -115,21 +133,18 @@
             var minDate;
             var maxDate;
             var dateFormatforAxis = 'dd.MM';
-            var timePeriod = 28 * 86400000;
+            var timePeriod = 28 * dayms;
             var startListDate = new Date();
             var endListDate = new Date();
-
             var xhr = new XMLHttpRequest();
-
-            var windowWidth = $(document).width();
+            var windowWidth = $(window).width();
             var oneMonthButtonVisibility = true;
             var twoMonthButtonVisibility = true;
             var threeMonthButtonVisibility = true;
             var smallTimePeriod = 28;
-            var mediumTimePeriod = 81;
-            var bigTimePeriod = 162;
+            var mediumTimePeriod = 91;
+            var bigTimePeriod = 182;
             var dayms = 86400000;
-
             function getJSONData() {
                 inputData = jsondata;
                 currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
@@ -159,26 +174,29 @@
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 if ((Date.parse(startListDate)) < Date.parse(minDate)) {
                     document.getElementById("backwardButton").disabled = true;
+                    document.getElementById("backwardWeekButton").disabled = true;
+                    document.getElementById("backwardDayButton").disabled = true;
                 } else {
                     document.getElementById("backwardButton").disabled = false;
+                    document.getElementById("backwardWeekButton").disabled = false;
+                    document.getElementById("backwardDayButton").disabled = false;
                 }
                 endListDate = new Date();
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
                 if ((Date.parse(endListDate)) > Date.parse(maxDate)) {
                     document.getElementById("forwardButton").disabled = true;
+                    document.getElementById("forwardWeekButton").disabled = true;
+                    document.getElementById("forwardDayButton").disabled = true;
                 } else {
                     document.getElementById("forwardButton").disabled = false;
+                    document.getElementById("forwardWeekButton").disabled = false;
+                    document.getElementById("forwardDayButton").disabled = false;
                 }
                 reRenderVacationsList();
             }
 
             function changeTimePeriod(newTimePeriod) {
                 timePeriod = newTimePeriod * dayms;
-//                if (newTimePeriod <= 31 * 86400000) {
-//                    dateFormatforAxis = 'dd.MM';
-//                } else {
-//                    dateFormatforAxis = 'dd.MM.yyyy';
-//                }
                 startListDate = new Date(startListDate.getFullYear(), startListDate.getMonth(), startListDate.getDate());
                 endListDate.setTime(Date.parse(startListDate) + timePeriod);
                 shiftDate(0);
@@ -281,6 +299,7 @@
             }
 
             function drawWithDayStyle() {
+                manageShiftButtons(1);
                 var parentDiv = document.getElementById("vacationContainer");
                 let oldTable = document.getElementById('vacationTable').remove();
                 let newTable = document.createElement("table");
@@ -308,14 +327,12 @@
                             vtdhMonth.colSpan = colspanformonth;
                             vtdhMonth.className = 'vacation-header-tablecell-month';
                             spanM = document.createElement('span');
-                            if (tempDate.getMonth() !== 0) {
-                                spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth() - 1] + " - " + tempDate.getFullYear()));
-                            } else {
-                                spanM.appendChild(document.createTextNode(monthNames[11] + " - " + tempDate.getFullYear()));
-                            }
+
+                            spanM.appendChild(document.createTextNode(monthNames[new Date(tempDate.getTime() - dayms * 2).getMonth()] + " - " + new Date(tempDate.getTime() - dayms * 2).getFullYear()));
+
                             vtdhMonth.appendChild(spanM);
-                            vtrheadRow.appendChild(vtdhMonth);
                         }
+                        vtrheadRow.appendChild(vtdhMonth);
                         currentMonth = tempDate.getMonth();
                         colspanformonth = 0;
                     }
@@ -328,7 +345,7 @@
                     vtdhMonth.className = 'vacation-header-tablecell';
                     vtdhMonth.title = tempDate.toLocaleDateString();
                     spanM = document.createElement('span');
-                    spanM.appendChild(document.createTextNode(monthNames[tempDate.getMonth()] + " - " + tempDate.getFullYear()));
+                    spanM.appendChild(document.createTextNode(monthNames[new Date(tempDate.getTime() - dayms * 2).getMonth()] + " - " + new Date(tempDate.getTime() - dayms * 2).getFullYear()));
                     vtdhMonth.appendChild(spanM);
                     vtrheadRow.appendChild(vtdhMonth);
                 }
@@ -427,7 +444,7 @@
                             }
                         }
                         vtr.appendChild(vtd);
-                        tempDate.setTime(tempDate.getTime() + 86400000);
+                        tempDate.setTime(tempDate.getTime() + dayms);
                     }
                     newTable.appendChild(vtr);
                 });
@@ -435,25 +452,184 @@
                 document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
                 $("#vacationTable").tableHeadFixer({
                     head: true,
-                    left: 1,
                 });
             }
 
             function drawWithWeekStyle() {
+                manageShiftButtons(7);
                 var parentDiv = document.getElementById("vacationContainer");
                 let oldTable = document.getElementById('vacationTable').remove();
                 let newTable = document.createElement("table");
                 newTable.setAttribute("id", "vacationTable");
+                newTable.className = "vacation-table";
+                let vthead;
+                vthead = document.createElement('thead');
+                let vtrheadRow;
+                vtrheadRow = document.createElement('tr');
+                vtrheadRow.id = 'dateMonthString';
+                let tempDate = new Date();
+                tempDate.setTime(startListDate.getTime());
+                let vtdhMonth;
+                let colspanformonth;
+                vtdhMonth = document.createElement('td');
+                vtdhMonth.className = 'vacation-header-tablecell';
+                vtrheadRow.appendChild(vtdhMonth);
+                colspanformonth = 0;
+                let currentMonth = tempDate.getMonth();
+                while (tempDate < endListDate) {
+                    if ((tempDate.getMonth() !== currentMonth)) {
+                        if (colspanformonth >= 13) {
+                            vtdhMonth = document.createElement('td');
+                            vtdhMonth.colSpan = colspanformonth;
+                            vtdhMonth.className = 'vacation-header-tablecell-month';
+                            spanM = document.createElement('span');
+                            spanM.appendChild(document.createTextNode(monthNames[new Date(tempDate.getTime() - dayms * 2).getMonth()] + " - " + new Date(tempDate.getTime() - dayms * 2).getFullYear()));
+                            vtdhMonth.appendChild(spanM);
+                            vtrheadRow.appendChild(vtdhMonth);
+                        }
+                        vtrheadRow.appendChild(vtdhMonth);
+                        currentMonth = tempDate.getMonth();
+                        colspanformonth = 0;
+                    }
+                    colspanformonth++;
+                    tempDate.setTime(tempDate.getTime() + dayms);
+                }
+                if (colspanformonth > 13) {
+                    vtdhMonth = document.createElement('td');
+                    vtdhMonth.colSpan = colspanformonth;
+                    vtdhMonth.className = 'vacation-header-tablecell';
+                    vtdhMonth.title = tempDate.toLocaleDateString();
+                    spanM = document.createElement('span');
+                    spanM.appendChild(document.createTextNode(monthNames[new Date(tempDate.getTime() - dayms * 2).getMonth()] + " - " + new Date(tempDate.getTime() - dayms * 2).getFullYear()));
+                    vtdhMonth.appendChild(spanM);
+                    vtrheadRow.appendChild(vtdhMonth);
+                }
+                vthead.appendChild(vtrheadRow);
 
+                let vtrh;
+                vtrh = document.createElement('tr');
+                vtrh.id = 'dateDayNumber';
+                vtrh.className = 'vacation-header';
+                tempDate = new Date();
+                tempDate.setTime(startListDate.getTime());
+                let weekColspan;
+                let vtdh;
+                vtdh = document.createElement('td');
+                vtdh.className = 'vacation-header-tablecell';
+                vtrh.appendChild(vtdh);
+                var span;
+                weekColspan = 1;
+                vtdh = document.createElement('td');
+                vtdh.className = 'vacation-header-tablecell-small';
+                span = document.createElement('span');
+                while (tempDate < endListDate) {
+                    console.log('weekColsspan: ' + weekColspan);
+                    if ((tempDate.getDay() === 6) || (tempDate.getDay() === 0)) {
+                        if (tempDate.getDay() === 6) {
+                            vtdh = document.createElement('td');
+                            vtdh.className = 'vacation-header-tablecell-small';
+                            span = document.createElement('span');
+                        }
+                        if (tempDate.getDay() === 0) {
+                            if (new Date((tempDate.getTime() - dayms * 7)) >= startListDate) {
+                                span.appendChild(document.createTextNode(new Date((tempDate.getTime() - dayms * 6)).getDate() + '-' + tempDate.getDate()));
+                            } else {
+                                span.appendChild(document.createTextNode(new Date((startListDate.getTime())).getDate() + '-' + tempDate.getDate()));
+                            }
+                            if (weekColspan === 1) {
+                                span = document.createElement('span');
+                                span.appendChild(document.createTextNode(tempDate.getDate()));
+                            }
+                            vtdh.colSpan = weekColspan;
+                            if (weekColspan <= 5) {
+                                vtdh.className = "vacation-header-tablecell-small";
+                            }
+                            vtdh.appendChild(span);
+                            vtrh.appendChild(vtdh);
+                            weekColspan = 0;
+                        }
+                    }
+                    weekColspan++;
+                    tempDate.setTime(tempDate.getTime() + dayms);
+                }
+                if (weekColspan >= 2) {
+                    vtdh = document.createElement('td');
+                    vtdh.className = '"vacation-header-tablecell-small"';
+                    span = document.createElement('span');
+                    if (weekColspan > 2) {
+                        span.appendChild(document.createTextNode(new Date((tempDate.getTime() - dayms * (weekColspan - 1))).getDate() + '-' + new Date((tempDate.getTime() - dayms * (1))).getDate()));
+                    } else {
+                        span.appendChild(document.createTextNode(new Date((tempDate.getTime() - dayms * (1))).getDate()));
+                    }
+                    vtdh.colSpan = weekColspan;
+                    vtdh.appendChild(span);
+                    vtrh.appendChild(vtdh);
+                }
+                vthead.appendChild(vtrh);
+                newTable.appendChild(vthead);
+
+                var vtr, vtd;
+                scopedEmployeesWithVacations.forEach((value, anothervalue, set) => {
+                    vtr = document.createElement('tr');
+                    vtr.id = 'employeeVacations' + value._name;
+                    vtd = document.createElement('td');
+                    vtd.className = 'vacation-tablecell-employee-small';
+                    var span = document.createElement('span');
+                    span.className = 'vacation-employee';
+                    span.appendChild(document.createTextNode(value._name));
+                    vtd.appendChild(span);
+                    vtr.appendChild(vtd);
+                    tempDate.setTime(startListDate.getTime());
+                    while (tempDate < endListDate) {
+                        vtd = document.createElement('td');
+                        vtd.className = 'vacation-small-tablecell';
+                        if ((tempDate.getDay() === 6) || (tempDate.getDay() === 0)) {
+                            if (tempDate.getDay() === 0) {
+                                vtd.className = 'vacation-small-tablecell-weekend';
+                            }
+                            vtd.style.backgroundColor = weekendColor;
+                        }
+                        for (var vd in value._vacationDays) {
+                            if (value._vacationDays[vd]._currentDate.getTime() === tempDate.getTime()) {
+                                vtd.style.backgroundColor = value._vacationDays[vd]._color;
+                                vtd.title = value._vacationDays[vd]._description + "\n" + tempDate.toDateString();
+                            }
+                        }
+                        vtr.appendChild(vtd);
+                        tempDate.setTime(tempDate.getTime() + dayms);
+                    }
+                    newTable.appendChild(vtr);
+                });
                 parentDiv.appendChild(newTable);
                 document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
                 $("#vacationTable").tableHeadFixer({
                     head: true,
-                    left: 1,
                 });
             }
 
+            function shiftToWeekStart() {
+                while (startListDate.getDay() !== 1) {
+                    startListDate = new Date(startListDate.getTime() - dayms);
+                }
+                endListDate.setTime(Date.parse(startListDate) + timePeriod);
+            }
+
+            function manageShiftButtons(minShiftValue) {
+                if (minShiftValue === 7) {
+                    document.getElementById('backwardWeekButton').style.display = '';
+                    document.getElementById('forwardWeekButton').style.display = '';
+                    document.getElementById('backwardDayButton').style.display = 'none';
+                    document.getElementById('forwardDayButton').style.display = 'none';
+                } else {
+                    document.getElementById('backwardWeekButton').style.display = 'none';
+                    document.getElementById('forwardWeekButton').style.display = 'none';
+                    document.getElementById('backwardDayButton').style.display = '';
+                    document.getElementById('forwardDayButton').style.display = '';
+                }
+            }
+
             function drawChart() {
+                console.log(scopedEmployeesWithVacations);
                 console.log($(document).width());
                 switch (selectSize($(document).width())) {
                     case 'big':
@@ -504,6 +680,10 @@
                 threeMonthButtonVisibility = true;
                 manageButtonVisibility();
                 if (timePeriod >= (bigTimePeriod - 1) * dayms) {
+                    if (startListDate.getDay() !== 1) {
+                        shiftToWeekStart();
+                        manageScopeData();
+                    }
                     drawWithWeekStyle();
                 } else {
                     drawWithDayStyle();
@@ -516,6 +696,10 @@
                 threeMonthButtonVisibility = false;
                 manageButtonVisibility();
                 if (timePeriod >= (mediumTimePeriod - 1) * dayms) {
+                    if (startListDate.getDay() !== 1) {
+                        shiftToWeekStart();
+                        manageScopeData();
+                    }
                     drawWithWeekStyle();
                 } else {
                     drawWithDayStyle();
@@ -535,6 +719,10 @@
                 twoMonthButtonVisibility = false;
                 threeMonthButtonVisibility = false;
                 manageButtonVisibility();
+                if (startListDate.getDay() !== 1) {
+                    shiftToWeekStart();
+                    manageScopeData();
+                }
                 drawWithWeekStyle();
             }
 
@@ -564,6 +752,7 @@
             window.onload = function () {
                 getJSONData();
                 setCurrentDates();
+                changeTimePeriod(smallTimePeriod);
             }
 
             $(window).resize(function () {
