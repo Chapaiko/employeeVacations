@@ -12,65 +12,90 @@
     </head>
 
     <body id="vacationsCalendar" class="vacation-body" >
-        <div class="vacation-content-managing" >
-            <div style="margin-bottom: 10px;margin-top: 10px;" >
-                <select id ="accountSelect" name="Account" class="vacation-button-select">
-                    <option>Account</option>
-                </select>
-                <select id ="departmentSelect" name="Department" class="vacation-button-select" style="margin-left: 10px;" >
-                    <option>Department</option>
-                </select>
-                <input type="text" name="Name" value="" size="25" class="vacation-textbox" placeholder="Name" style="margin-left: 10px;" />
-                <input type="button" value="Filter" name="filter" class="vacation-button" style="margin-left: 10px;" />
-            </div>
-        </div>
-        <div  class="vacation-content-managing">
-            <div class="tt-item-center" >
-                <ul class="vacation-date-manage-group">
-                    <li class="vacation-date-manage-group-item">
-                        <button id="backwardDayButton" title="Previous day" class="vacation-button-date"  onclick="shiftDate(-1 * 86400000)" >&#x25C0;</button>
-                    </li>
-                    <li class="vacation-date-manage-group-item">
-                        <button id="backwardWeekButton" title="Previous day" class="vacation-button-date"  onclick="shiftDate(-7 * 86400000)" >&#x25C0;</button>
-                    </li>
-                    <li class="vacation-date-manage-group-item">
-                        <button id="backwardButton" title="Previous period" class="vacation-button-date"  onclick="shiftDate(-28 * 86400000)" >&#x25C0;&#x25C0;</button>
-                    </li>
-                    <li id="tempo-timeframe-bar" class="vacation-date-manage-group-item-center">
-                        <output id="timeframeValue" class="vacation-output-date"  >
-                        </output>
-                    </li>
-                    <li class="vacation-date-manage-group-item">
-                        <button id="forwardButton" title="Next period" class="vacation-button-date"  onclick="shiftDate(28 * 86400000)"  >&#x25BA;&#x25BA;</button>    
-                    </li>
-                    <li class="vacation-date-manage-group-item">
-                        <button id="forwardWeekButton" title="Next day" class="vacation-button-date"  onclick="shiftDate(7 * 86400000)"  >&#x25BA;</button>    
-                    </li>
-                    <li class="vacation-date-manage-group-item">
-                        <button id="forwardDayButton" title="Next day" class="vacation-button-date"  onclick="shiftDate(1 * 86400000)"  >&#x25BA;</button>    
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div  class="vacation-content-body" >
-            <div>  
-                <button id="oneMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(smallTimePeriod)" >Show 1 month</button>
-                <button id="twoMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(mediumTimePeriod)" >Show 3 months</button>
-                <button id="threeMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(bigTimePeriod)" >Show 6 months</button>
-            </div>
-            <div id="vacationContainer" class="vacation-content-body-table">
-                <table id="vacationTable" class="vacation-table">
-                </table>
-            </div>
+        <div id="page" class="vacation-page">
+            <section id="content" role="main" style="margin: 0; padding: 0; box-sizing: border-box;clear: both;position: relative; display: block;" >
+                <div class="content-container">
+                    <div class="content-body">
+                        <header style="position: fixed; top: 0px;" class="vacation-header-detached">
+                            <div class="vacation-header-content">
+                                <div class="vacation-content-managing" >
+                                    <div style="margin-bottom: 10px;margin-top: 10px;" >
+                                        <select id ="accountSelect" name="Account" class="vacation-button-select">
+                                            <option>Account</option>
+                                        </select>
+                                        <select id ="departmentSelect" name="Department" class="vacation-button-select" style="margin-left: 10px;" >
+                                            <option>Department</option>
+                                        </select>
+                                        <input type="text" name="Name" value="" size="25" class="vacation-textbox" placeholder="Name" style="margin-left: 10px;" />
+                                        <input type="button" value="Filter" name="filter" class="vacation-button" style="margin-left: 10px;" />
+                                    </div>
+                                </div>
+                                <div  class="vacation-content-managing">
+                                    <div class="tt-item-center" >
+                                        <ul class="vacation-date-manage-group">
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="backwardDayButton" title="Previous day" class="vacation-button-date"  onclick="shiftDate(-1 * 86400000)" >&#x25C0;</button>
+                                            </li>
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="backwardWeekButton" title="Previous week" class="vacation-button-date"  onclick="shiftDate(-7 * 86400000)" >&#x25C0;</button>
+                                            </li>
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="backwardButton" title="Previous period" class="vacation-button-date"  onclick="shiftDate(-28 * 86400000)" >&#x25C0;&#x25C0;</button>
+                                            </li>
+                                            <li id="tempo-timeframe-bar" class="vacation-date-manage-group-item-center">
+                                                <output id="timeframeValue" class="vacation-output-date"  >
+                                                </output>
+                                            </li>
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="forwardButton" title="Next period" class="vacation-button-date"  onclick="shiftDate(28 * 86400000)"  >&#x25BA;&#x25BA;</button>    
+                                            </li>
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="forwardWeekButton" title="Next week" class="vacation-button-date"  onclick="shiftDate(7 * 86400000)"  >&#x25BA;</button>    
+                                            </li>
+                                            <li class="vacation-date-manage-group-item">
+                                                <button id="forwardDayButton" title="Next day" class="vacation-button-date"  onclick="shiftDate(1 * 86400000)"  >&#x25BA;</button>    
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div  class="vacation-content-body" >
+                                    <div class="vacation-content-body-command" >  
+                                        <button id="oneMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(smallTimePeriod)" >Show 1 month</button>
+                                        <button id="twoMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(mediumTimePeriod)" >Show 3 months</button>
+                                        <button id="threeMonthButton"  class="vacation-button-rounded" onclick="changeTimePeriod(bigTimePeriod)" >Show 6 months</button>
+                                    </div>
+                                    <div  class="vacation-content-body-table">
+                                        <div class="header-target">
+                                            <div id="vacationContainerHeader" class="shadowed-header">
+                                                <table id="vacationTableH" class="vacation-table">
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </header>
+                        <div id="vacationContainer" class="vacation-content-body-table">
+                            <div class="table-container">
+                                <table id="vacationTable" class="vacation-table">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer role="contentinfo">
+                
+            </footer>
         </div>
         <script >
-            class UsageOptions {
-                constructor(resetOn, availableDays, totalDays) {
-                    this._resetOn = resetOn;
-                    this._availableDays = availableDays;
-                    this._totalDays = totalDays;
-                }
-            }
+//            class UsageOptions {
+//                constructor(resetOn, availableDays, totalDays) {
+//                    this._resetOn = resetOn;
+//                    this._availableDays = availableDays;
+//                    this._totalDays = totalDays;
+//                }
+//            }
             class Vacation {
                 constructor(name, employee, description, vacationStart, vacationEnd, resolution) {
                     this._name = name;
@@ -120,7 +145,7 @@
             var colorMap = new Map();
             colorMap.set('In Review', '#feffde');
             colorMap.set('Approved', '#60b070');
-            var currentUsageOptions = new UsageOptions();
+            //var currentUsageOptions = new UsageOptions();
             var employeeArray = new Array();
             var employeesWithVacationsArray = new Array();
             var inputData = new Object();
@@ -145,9 +170,10 @@
             var mediumTimePeriod = 91;
             var bigTimePeriod = 182;
             var dayms = 86400000;
+
             function getJSONData() {
                 inputData = jsondata;
-                currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
+                //currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
                 manageVacations();
 //                $.getJSON('data/vacation.json', function (json) {
 //                    inputData = json;
@@ -164,7 +190,7 @@
 //                    inputData = JSON.parse(xhr.responseText);
 //                    console.log(inputData);
 //                    currentUsageOptions = new UsageOptions(new Date(inputData.usage.resetOn), inputData.usage.availableDays, inputData.usage.totalDays);
-//                    //      console.log(currentUsageOptions);
+//                    console.log(currentUsageOptions);
 //                    manageVacations();
 //                }
             }
@@ -236,7 +262,6 @@
                 manageScopeData();
             }
 
-
             function compare(a, b) {
                 if (a._employee < b._employee)
                     return -1;
@@ -302,6 +327,8 @@
                 manageShiftButtons(1);
                 var parentDiv = document.getElementById("vacationContainer");
                 let oldTable = document.getElementById('vacationTable').remove();
+                var parentHeadDiv = document.getElementById("vacationContainerHeader");
+                let oldheadTable = document.getElementById('vacationTableH').remove();
                 let newTable = document.createElement("table");
                 newTable.setAttribute("id", "vacationTable");
                 newTable.className = "vacation-table";
@@ -448,17 +475,24 @@
                     }
                     newTable.appendChild(vtr);
                 });
-                parentDiv.appendChild(newTable);
-                document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
-                $("#vacationTable").tableHeadFixer({
-                    head: true,
-                });
+                parentHeadDiv.appendChild(newTable);
+                let table2 = newTable.cloneNode(true);
+                table2.setAttribute("id", "vacationTableH");
+                parentDiv.appendChild(table2);
+                let tableOffset = $('#vacationTable').offset();
+                $('#vacationTableH').offset({top: tableOffset.top, left: tableOffset.left});
+//                document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
+//                $("#vacationTable").tableHeadFixer({
+//                    head: true,
+//                });
             }
 
             function drawWithWeekStyle() {
                 manageShiftButtons(7);
                 var parentDiv = document.getElementById("vacationContainer");
                 let oldTable = document.getElementById('vacationTable').remove();
+                var parentHeadDiv = document.getElementById("vacationContainerHeader");
+                let oldHeadTable = document.getElementById('vacationTableH').remove();
                 let newTable = document.createElement("table");
                 newTable.setAttribute("id", "vacationTable");
                 newTable.className = "vacation-table";
@@ -523,7 +557,6 @@
                 vtdh.className = 'vacation-header-tablecell-small';
                 span = document.createElement('span');
                 while (tempDate < endListDate) {
-                    console.log('weekColsspan: ' + weekColspan);
                     if ((tempDate.getDay() === 6) || (tempDate.getDay() === 0)) {
                         if (tempDate.getDay() === 6) {
                             vtdh = document.createElement('td');
@@ -600,11 +633,16 @@
                     }
                     newTable.appendChild(vtr);
                 });
-                parentDiv.appendChild(newTable);
-                document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
-                $("#vacationTable").tableHeadFixer({
-                    head: true,
-                });
+                parentHeadDiv.appendChild(newTable);
+                var table2 = newTable.cloneNode(true);
+                table2.setAttribute("id", "vacationTableH");
+                parentDiv.appendChild(table2);
+                let tableOffset = $('#vacationTable').offset();
+                $('#vacationTableH').offset({top: tableOffset.top, left: tableOffset.left});
+                //document.getElementById("vacationContainer").style.maxHeight = $(document).height() * 0.75 + ("px");
+//                $("#vacationTable").tableHeadFixer({
+//                    head: true,
+//                });
             }
 
             function shiftToWeekStart() {
@@ -629,29 +667,23 @@
             }
 
             function drawChart() {
-                console.log(scopedEmployeesWithVacations);
-                console.log($(document).width());
                 switch (selectSize($(document).width())) {
                     case 'big':
-                        console.log('big');
                         drawForBigMonitor();
                         break;
                     case 'medium':
-                        console.log('medium');
                         if (timePeriod > (mediumTimePeriod * dayms)) {
                             changeTimePeriod(mediumTimePeriod);
                         }
                         drawForMediumMonitor();
                         break;
                     case 'moderate':
-                        console.log('moderate');
                         if (timePeriod > (smallTimePeriod * dayms)) {
                             changeTimePeriod(smallTimePeriod);
                         }
                         drawForModerateMonitor();
                         break;
                     default:
-                        console.log('small');
                         if (timePeriod > (smallTimePeriod * dayms)) {
                             changeTimePeriod(smallTimePeriod);
                         }
@@ -672,7 +704,6 @@
                 }
                 return size;
             }
-
 
             function drawForBigMonitor() {
                 oneMonthButtonVisibility = true;
